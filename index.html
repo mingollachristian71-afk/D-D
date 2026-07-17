@@ -206,19 +206,26 @@ window.addEventListener('load', () => {
 function chiudiDisclaimer() {
     // 1. Nascondi il disclaimer
     const discl = document.getElementById('disclaimer-screen');
-    if (discl) discl.style.display = 'none';
+    if (discl) {
+        discl.style.display = 'none';
+        discl.classList.remove('active'); // Rimuoviamo anche la classe active per sicurezza
+    }
 
-    // 2. Scegli dove andare in base all'URL che abbiamo salvato all'avvio
+    // 2. Logica per decidere cosa mostrare
+    const urlParams = new URLSearchParams(window.location.search);
+    const stanzaUrl = urlParams.get('stanza');
+
     if (stanzaUrl) {
-        // Se c'è una stanza nell'URL, vai alla lobby dei giocatori
-        const joinScreen = document.getElementById('join-screen');
-        if (joinScreen) joinScreen.style.display = 'block';
+        // Se c'è una stanza, mostra la lobby
+        const lobby = document.getElementById('join-screen');
+        if (lobby) lobby.style.display = 'block';
     } else {
-        // Se NON c'è una stanza, vai al menu principale (Nuova Avventura)
-        const homeScreen = document.getElementById('home-screen');
-        if (homeScreen) homeScreen.style.display = 'block';
+        // Altrimenti, mostra il menu principale (Home)
+        const home = document.getElementById('home-screen');
+        if (home) home.style.display = 'block';
     }
 }
+
 
 
 
