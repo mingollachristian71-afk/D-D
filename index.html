@@ -254,11 +254,17 @@ function chiudiDisclaimer() {
 let stanzaUrl = null;
 let isCreatore = false;
 
+// --- 1. INIZIALIZZAZIONE ---
+let stanzaUrl = null;
+let isCreatore = false;
+
+// Recuperiamo l'eventuale stanza dall'URL appena la pagina carica
 window.addEventListener('load', () => {
     try {
         const urlParams = new URLSearchParams(window.location.search);
         stanzaUrl = urlParams.get('stanza');
-        // Se siamo in una stanza, iniziamo ad ascoltare il database
+        
+        // Se c'è una stanza, avviamo l'ascolto senza forzare cambi di schermata
         if (stanzaUrl && window.db) {
             ascoltaStatoPartita();
         }
@@ -266,6 +272,7 @@ window.addEventListener('load', () => {
         console.error("Errore avvio:", e);
     }
 });
+
 
 // --- 2. LOGICA SELEZIONE RUOLO ---
 function selezionaRuolo(ruolo) {
@@ -469,13 +476,6 @@ function mostraInfoClasse() {
                 alert("Errore caricamento URL: " + e.message);
             }
         });
-
-        function chiudiDisclaimer() {
-            document.getElementById('disclaimer-screen').classList.remove('active');
-            document.getElementById('home-screen').classList.add('active');
-            aggiornaListaAvventure();
-        }
-
         function creaNuovaAvventura() {
             const nome = document.getElementById('nuovaAvventuraNome').value.trim();
             if (!nome) return alert("Inserisci un nome!");
