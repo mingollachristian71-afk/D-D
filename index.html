@@ -30,7 +30,9 @@
             <p style="font-size: 18px; color: #ccc;">Questo strumento <strong>non gestisce microfoni o chat vocale/testuale</strong>.</p>
             <p style="font-size: 18px; color: #ccc;">Questo strumento non gestisce microfoni o chat vocale/testuale; è necessario comunicare tra voi e con colui che sarà il Master tramite app esterne come Discord o WhatsApp. Questo sito prende ispirazione dal famoso gioco di ruolo D&D, ma senza copiarlo: questo vuol dire che potrete trovare abilità, classi, nemici e regole che nel gioco originale non ci sono. Buon divertimento!</p>
 
-            <button onclick="chiudiDisclaimer()">OK, ho capito</button>
+            <!-- Cambia la riga 33 così: -->
+            <button id="btn-disclaimer" onclick="chiudiDisclaimer()">OK, ho capito</button>
+
         </div>
     </div>
 
@@ -208,7 +210,7 @@ function chiudiDisclaimer() {
     const discl = document.getElementById('disclaimer-screen');
     if (discl) {
         discl.style.display = 'none';
-        discl.classList.remove('active'); // Rimuoviamo anche la classe active per sicurezza
+        discl.classList.remove('active');
     }
 
     // 2. Logica per decidere cosa mostrare
@@ -225,10 +227,6 @@ function chiudiDisclaimer() {
         if (home) home.style.display = 'block';
     }
 }
-
-
-
-
     // FORZA l'attivazione della lobby (che deve apparire dopo)
     const lobby = document.getElementById('join-screen');
     if (lobby) {
