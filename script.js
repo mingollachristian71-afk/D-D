@@ -1,5 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js";
 import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-database.js";
+import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-analytics.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyAZq5MjHGMUJm6r_zZWvToPl76vbwVVJnU",
@@ -12,7 +13,10 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
-const database = getDatabase(app);
+const database = getDatabase(app); // Questa riga è fondamentale!
+const analytics = getAnalytics(app);
+
+// Adesso chiamiamo la funzione che controlla il link:
 controllaAccessoStanza();
 
 // Colleghiamo i bottoni usando gli ID (questo funziona con type="module")
