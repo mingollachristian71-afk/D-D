@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GDR D&D Tribute</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- Schermata del Disclaimer -->
+    <div id="disclaimer-screen" class="screen" style="display: block;">
+        <h1>Benvenuti giocatori!</h1>
+        <p>Il sito non supporta chat audio quindi bisogna usufruire di canali come Discord e WhatsApp.</p>
+        <p>Questo gioco è un tributo al famoso gioco di ruolo D&D, ma per renderlo più originale durante lo sviluppo ho aggiunto classi, regole, abilità e creature da affrontare.</p>
+        <button id="btnChiudiDisclaimer">OK, ho capito</button>
+
+    </div>
+
+    <!-- Schermata Home (Menu) -->
+    <div id="home-screen" class="screen" style="display: none;">
+        <h1>Menu Principale</h1>
+
+    <!-- Sezione Nuova Avventura -->
+    <div class="menu-section">
+        <h3>Inizia nuova avventura</h3>
+        <input type="text" id="nuovaAvventuraNome" placeholder="Nome avventura">
+        <!-- Aggiungi questo sotto l'input del nome avventura -->
+        <input type="number" id="numeroGiocatori" placeholder="Numero totale giocatori (Master incluso)" min="2">
+        <br>
+        <button id="btnCreaAvventura">Inizia avventura</button>
+
+    </div>
+
+    <hr>
+
+    <!-- Sezione Avventure Salvate -->
+    <div class="menu-section">
+        <h3>Avventure salvate</h3>
+        <div id="lista-avventure">
+            <!-- Qui verranno caricate le avventure salvate -->
+            <p>Nessuna avventura salvata al momento.</p>
+        </div>
+    </div>
+</div>
+    <script type="module" src="script.js"></script>
+
+</body>
+</html>
