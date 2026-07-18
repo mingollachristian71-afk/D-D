@@ -13,6 +13,7 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
+controllaAccessoStanza();
 
 // Colleghiamo i bottoni usando gli ID (questo funziona con type="module")
 document.getElementById('btnChiudiDisclaimer').addEventListener('click', () => {
@@ -52,3 +53,18 @@ document.getElementById('btnCreaAvventura').addEventListener('click', () => {
         alert("Errore: " + error.message);
     });
 });
+// Aggiungila in fondo al file script.js
+function controllaAccessoStanza() {
+    const params = new URLSearchParams(window.location.search);
+    const stanzaId = params.get('stanza'); // Nota: nel tuo codice la chiami "stanza"
+
+    if (stanzaId) {
+        console.log("Stai entrando nella stanza: " + stanzaId);
+        // Qui dovresti nascondere la home-screen e mostrare la schermata di gioco
+        document.getElementById('disclaimer-screen').style.display = 'none';
+        document.getElementById('home-screen').style.display = 'block';
+        document.getElementById('home-screen').innerHTML = `<h1>Caricamento stanza ${stanzaId}...</h1>`;
+        
+        // Qui in futuro aggiungerai la funzione per leggere i dati da Firebase
+    }
+}
