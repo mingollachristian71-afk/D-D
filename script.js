@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js";
-import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-database.js";
+import { getDatabase, ref, set, get, onValue, update } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-database.js";
 import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-analytics.js";
 
 const firebaseConfig = {
@@ -64,19 +64,15 @@ function controllaAccessoStanza() {
     const stanzaId = params.get('stanza');
 
     if (stanzaId) {
-        console.log("Tentativo di connessione a: stanze/" + stanzaId);
-        
         document.getElementById('disclaimer-screen').style.display = 'none';
         document.getElementById('home-screen').style.display = 'block';
         
         const stanzaRef = ref(database, 'stanze/' + stanzaId);
         
-        get(stanzaRef).then((snapshot) => {
-            console.log("Firebase ha risposto!");
+        // onValue ascolta i cambiamenti in tempo reale
+        onValue(stanzaRef, (snapshot) => {
             if (snapshot.exists()) {
                 const datiStanza = snapshot.val();
-                
-                // Estraiamo i nomi dei giocatori dall'oggetto "giocatori"
                 const listaNomi = Object.keys(datiStanza.giocatori || {});
                 const listaHTML = listaNomi.map(nome => `<li>${nome}</li>`).join('');
                 
@@ -84,17 +80,11 @@ function controllaAccessoStanza() {
                     <h1>${datiStanza.nome}</h1>
                     <h3>Giocatori presenti:</h3>
                     <ul>${listaHTML}</ul>
-                    <p>In attesa dell'inizio della partita...</p>
+                    <p>Stato: ${datiStanza.stato}</p>
                 `;
             } else {
-                console.log("Stanza non trovata nel database.");
                 document.getElementById('home-screen').innerHTML = `<h1>Errore: Stanza non trovata!</h1>`;
             }
-        }).catch((error) => {
-            console.error("Errore critico Firebase: ", error);
-            document.getElementById('home-screen').innerHTML = `<h1>Errore di connessione.</h1>`;
         });
-    } else {
-        console.log("Nessun parametro stanza rilevato nell'URL.");
     }
 }
