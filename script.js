@@ -24,7 +24,6 @@ document.getElementById('btnChiudiDisclaimer').addEventListener('click', () => {
     document.getElementById('disclaimer-screen').style.display = 'none';
     document.getElementById('home-screen').style.display = 'block';
 });
-
 document.getElementById('btnCreaAvventura').addEventListener('click', () => {
     const nomeAvventura = document.getElementById('nuovaAvventuraNome').value;
     const numGiocatori = document.getElementById('numeroGiocatori').value;
@@ -34,9 +33,9 @@ document.getElementById('btnCreaAvventura').addEventListener('click', () => {
         return;
     }
 
-    const stanzaId = Date.now().toString(); 
+    // Usiamo un ID fisso per questo test di sincronizzazione
+    const stanzaId = "stanza_test_001"; 
     
-    // Salviamo la stanza con la struttura corretta per i giocatori
     set(ref(database, 'stanze/' + stanzaId), {
         nome: nomeAvventura,
         totaleGiocatori: numGiocatori,
@@ -45,13 +44,11 @@ document.getElementById('btnCreaAvventura').addEventListener('click', () => {
         },
         stato: 'attesa'
     }).then(() => {
-        // Creiamo dinamicamente la schermata di attesa
         const linkStanza = window.location.href.split('?')[0] + "?stanza=" + stanzaId;
         
         document.getElementById('home-screen').innerHTML = `
             <h1>${nomeAvventura}</h1>
-            <button onclick="navigator.clipboard.writeText('${linkStanza}')">Copia Link Invito</button>
-            <p>Link: ${linkStanza}</p>
+            <p>Link (copialo per il telefono): <br> <b>${linkStanza}</b></p>
             <h3>Giocatori in attesa:</h3>
             <ul id="lista-giocatori"><li>Giocatore 1 (Master)</li></ul>
         `;
@@ -69,29 +66,22 @@ function controllaAccessoStanza() {
         
         const stanzaRef = ref(database, 'stanze/' + stanzaId);
         
-        // Questa funzione resta in ascolto costante e aggiorna tutto in automatico
         onValue(stanzaRef, (snapshot) => {
             if (snapshot.exists()) {
                 const datiStanza = snapshot.val();
-                
-                // Prendiamo l'oggetto giocatori dal database
                 const giocatoriObj = datiStanza.giocatori || {};
-                
-                // Creiamo la lista HTML per TUTTI i giocatori presenti nel database
                 const listaHTML = Object.keys(giocatoriObj)
                     .map(nome => `<li>${nome}</li>`)
                     .join('');
                 
-                // Aggiorniamo la pagina
                 document.getElementById('home-screen').innerHTML = `
                     <h1>${datiStanza.nome}</h1>
-                    <p>Totale posti previsti: ${datiStanza.totaleGiocatori}</p>
                     <h3>Giocatori presenti:</h3>
                     <ul>${listaHTML}</ul>
                     <p>Stato: ${datiStanza.stato}</p>
                 `;
             } else {
-                document.getElementById('home-screen').innerHTML = `<h1>Errore: Stanza non trovata!</h1>`;
+                document.getElementById('home-screen').innerHTML = `<h1>Stanza non trovata.</h1>`;
             }
         });
     }
