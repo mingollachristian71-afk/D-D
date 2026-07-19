@@ -69,15 +69,23 @@ function controllaAccessoStanza() {
         
         const stanzaRef = ref(database, 'stanze/' + stanzaId);
         
-        // onValue ascolta i cambiamenti in tempo reale
+        // Questa funzione resta in ascolto costante e aggiorna tutto in automatico
         onValue(stanzaRef, (snapshot) => {
             if (snapshot.exists()) {
                 const datiStanza = snapshot.val();
-                const listaNomi = Object.keys(datiStanza.giocatori || {});
-                const listaHTML = listaNomi.map(nome => `<li>${nome}</li>`).join('');
                 
+                // Prendiamo l'oggetto giocatori dal database
+                const giocatoriObj = datiStanza.giocatori || {};
+                
+                // Creiamo la lista HTML per TUTTI i giocatori presenti nel database
+                const listaHTML = Object.keys(giocatoriObj)
+                    .map(nome => `<li>${nome}</li>`)
+                    .join('');
+                
+                // Aggiorniamo la pagina
                 document.getElementById('home-screen').innerHTML = `
                     <h1>${datiStanza.nome}</h1>
+                    <p>Totale posti previsti: ${datiStanza.totaleGiocatori}</p>
                     <h3>Giocatori presenti:</h3>
                     <ul>${listaHTML}</ul>
                     <p>Stato: ${datiStanza.stato}</p>
