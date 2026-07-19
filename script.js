@@ -13,10 +13,18 @@ window.addEventListener('DOMContentLoaded', () => {
     controllaAccessoStanza();
 });
 
-// Colleghiamo i bottoni
+// Aggiungi questa variabile globale
+const params = new URLSearchParams(window.location.search);
+const stanzaIdDaUrl = params.get('stanza');
+
 document.getElementById('btnChiudiDisclaimer').addEventListener('click', () => {
-    document.getElementById('disclaimer-screen').style.display = 'none';
-    document.getElementById('home-screen').style.display = 'block';
+    // Se c'è un ID stanza, non mostrare la home classica, entra nella stanza
+    if (stanzaIdDaUrl) {
+        controllaAccessoStanza(); 
+    } else {
+        document.getElementById('disclaimer-screen').style.display = 'none';
+        document.getElementById('home-screen').style.display = 'block';
+    }
 });
 
 // ... resto del codice del bottone btnCreaAvventura ...
@@ -54,26 +62,21 @@ document.getElementById('btnCreaAvventura').addEventListener('click', () => {
     });
 });
 function controllaAccessoStanza() {
-    const params = new URLSearchParams(window.location.search);
-    const stanzaId = params.get('stanza');
-
-    if (stanzaId) {
+    // Usiamo stanzaIdDaUrl (la variabile globale)
+    if (stanzaIdDaUrl) {
         document.getElementById('disclaimer-screen').style.display = 'none';
         document.getElementById('home-screen').style.display = 'block';
         
-        const stanzaRef = ref(database, 'stanze/' + stanzaId);
+        const stanzaRef = ref(database, 'stanze/' + stanzaIdDaUrl);
         
-        // 1. Appena il telefono entra, scriviamo nel database che c'è un "Giocatore 2"
-        // Controlliamo prima se esiste già per non sovrascrivere
-        get(child(ref(database), 'stanze/' + stanzaId + '/giocatori/Giocatore 2')).then((snapshot) => {
+        get(child(ref(database), 'stanze/' + stanzaIdDaUrl + '/giocatori/Giocatore 2')).then((snapshot) => {
             if (!snapshot.exists()) {
-                update(ref(database, 'stanze/' + stanzaId + '/giocatori'), {
+                update(ref(database, 'stanze/' + stanzaIdDaUrl + '/giocatori'), {
                     "Giocatore 2": "Attivo"
                 });
             }
         });
 
-        // 2. Ascoltiamo il database per vedere tutti i giocatori in tempo reale
         onValue(stanzaRef, (snapshot) => {
             if (snapshot.exists()) {
                 const datiStanza = snapshot.val();
