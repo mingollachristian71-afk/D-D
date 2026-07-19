@@ -64,7 +64,7 @@ function controllaAccessoStanza() {
     const stanzaId = params.get('stanza');
 
     if (stanzaId) {
-        console.log("Tentativo di connessione a: stanze/" + stanzaId); // Debug 1
+        console.log("Tentativo di connessione a: stanze/" + stanzaId);
         
         document.getElementById('disclaimer-screen').style.display = 'none';
         document.getElementById('home-screen').style.display = 'block';
@@ -72,16 +72,26 @@ function controllaAccessoStanza() {
         const stanzaRef = ref(database, 'stanze/' + stanzaId);
         
         get(stanzaRef).then((snapshot) => {
-            console.log("Firebase ha risposto!"); // Debug 2
+            console.log("Firebase ha risposto!");
             if (snapshot.exists()) {
                 const datiStanza = snapshot.val();
-                document.getElementById('home-screen').innerHTML = `<h1>${datiStanza.nome}</h1>`;
+                
+                // Estraiamo i nomi dei giocatori dall'oggetto "giocatori"
+                const listaNomi = Object.keys(datiStanza.giocatori || {});
+                const listaHTML = listaNomi.map(nome => `<li>${nome}</li>`).join('');
+                
+                document.getElementById('home-screen').innerHTML = `
+                    <h1>${datiStanza.nome}</h1>
+                    <h3>Giocatori presenti:</h3>
+                    <ul>${listaHTML}</ul>
+                    <p>In attesa dell'inizio della partita...</p>
+                `;
             } else {
-                console.log("Stanza non trovata nel database."); // Debug 3
+                console.log("Stanza non trovata nel database.");
                 document.getElementById('home-screen').innerHTML = `<h1>Errore: Stanza non trovata!</h1>`;
             }
         }).catch((error) => {
-            console.error("Errore critico Firebase: ", error); // Debug 4
+            console.error("Errore critico Firebase: ", error);
             document.getElementById('home-screen').innerHTML = `<h1>Errore di connessione.</h1>`;
         });
     } else {
