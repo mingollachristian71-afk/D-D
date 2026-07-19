@@ -2,6 +2,24 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/12.16.0/fireba
 import { getDatabase, ref, set, get, onValue, update, child } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-database.js";
 import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-analytics.js";
 
+// La tua configurazione corretta
+const firebaseConfig = {
+  apiKey: "AIzaSyAZq5MjHGMUJm6r_zZWvToPl76vbwVVJnU",
+  authDomain: "dnd-toolset-ac6d4.firebaseapp.com",
+  databaseURL: "https://dnd-toolset-ac6d4-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "dnd-toolset-ac6d4",
+  storageBucket: "dnd-toolset-ac6d4.firebasestorage.app",
+  messagingSenderId: "647425557017",
+  appId: "1:647425557017:web:17b1e903ef0e9e60e3e088",
+  measurementId: "G-1F0K331B7Z"
+};
+
+// Inizializzazione
+const app = initializeApp(firebaseConfig);
+const database = getDatabase(app);
+const analytics = getAnalytics(app);
+
+// ... (il resto del tuo codice continua da qui)
 const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
 const analytics = getAnalytics(app);
