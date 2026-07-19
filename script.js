@@ -33,8 +33,8 @@ document.getElementById('btnCreaAvventura').addEventListener('click', () => {
         return;
     }
 
-    // Usiamo un ID fisso per questo test di sincronizzazione
-    const stanzaId = "stanza_test_001"; 
+    // Torniamo a usare Date.now() per avere stanze uniche ogni volta
+    const stanzaId = Date.now().toString(); 
     
     set(ref(database, 'stanze/' + stanzaId), {
         nome: nomeAvventura,
@@ -44,11 +44,12 @@ document.getElementById('btnCreaAvventura').addEventListener('click', () => {
         },
         stato: 'attesa'
     }).then(() => {
+        // Ora il link punterà all'ID univoco appena creato
         const linkStanza = window.location.href.split('?')[0] + "?stanza=" + stanzaId;
         
         document.getElementById('home-screen').innerHTML = `
             <h1>${nomeAvventura}</h1>
-            <p>Link (copialo per il telefono): <br> <b>${linkStanza}</b></p>
+            <p>Link (invialo ai giocatori): <br> <b>${linkStanza}</b></p>
             <h3>Giocatori in attesa:</h3>
             <ul id="lista-giocatori"><li>Giocatore 1 (Master)</li></ul>
         `;
@@ -66,6 +67,17 @@ function controllaAccessoStanza() {
         
         const stanzaRef = ref(database, 'stanze/' + stanzaId);
         
+        // 1. Appena il telefono entra, scriviamo nel database che c'è un "Giocatore 2"
+        // Controlliamo prima se esiste già per non sovrascrivere
+        get(child(ref(database), 'stanze/' + stanzaId + '/giocatori/Giocatore 2')).then((snapshot) => {
+            if (!snapshot.exists()) {
+                update(ref(database, 'stanze/' + stanzaId + '/giocatori'), {
+                    "Giocatore 2": "Attivo"
+                });
+            }
+        });
+
+        // 2. Ascoltiamo il database per vedere tutti i giocatori in tempo reale
         onValue(stanzaRef, (snapshot) => {
             if (snapshot.exists()) {
                 const datiStanza = snapshot.val();
@@ -80,8 +92,6 @@ function controllaAccessoStanza() {
                     <ul>${listaHTML}</ul>
                     <p>Stato: ${datiStanza.stato}</p>
                 `;
-            } else {
-                document.getElementById('home-screen').innerHTML = `<h1>Stanza non trovata.</h1>`;
             }
         });
     }
