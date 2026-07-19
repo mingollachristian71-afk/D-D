@@ -1,29 +1,25 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js";
-import { getDatabase, ref, set, get, onValue, update } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-database.js";
+import { getDatabase, ref, set, get, onValue, update, child } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-database.js";
 import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-analytics.js";
 
-const firebaseConfig = {
-    apiKey: "AIzaSyAZq5MjHGMUJm6r_zZWvToPl76vbwVVJnU",
-    authDomain: "dnd-toolset-ac6d4.firebaseapp.com",
-    databaseURL: "https://dnd-toolset-ac6d4-default-rtdb.europe-west1.firebasedatabase.app",
-    projectId: "dnd-toolset-ac6d4",
-    storageBucket: "dnd-toolset-ac6d4.firebasestorage.app",
-    messagingSenderId: "647425557017",
-    appId: "1:647425557017:web:17b1e903ef0e9e60e3e088"
-};
+// ... import ...
 
 const app = initializeApp(firebaseConfig);
-const database = getDatabase(app); // Questa riga è fondamentale!
+const database = getDatabase(app);
 const analytics = getAnalytics(app);
 
-// Adesso chiamiamo la funzione che controlla il link:
-controllaAccessoStanza();
+// Aspettiamo che l'HTML sia caricato prima di controllare l'URL
+window.addEventListener('DOMContentLoaded', () => {
+    controllaAccessoStanza();
+});
 
-// Colleghiamo i bottoni usando gli ID (questo funziona con type="module")
+// Colleghiamo i bottoni
 document.getElementById('btnChiudiDisclaimer').addEventListener('click', () => {
     document.getElementById('disclaimer-screen').style.display = 'none';
     document.getElementById('home-screen').style.display = 'block';
 });
+
+// ... resto del codice del bottone btnCreaAvventura ...
 document.getElementById('btnCreaAvventura').addEventListener('click', () => {
     const nomeAvventura = document.getElementById('nuovaAvventuraNome').value;
     const numGiocatori = document.getElementById('numeroGiocatori').value;
