@@ -2,32 +2,30 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/12.16.0/fireba
 import { getDatabase, ref, set, get, onValue, update, child } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-database.js";
 import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-analytics.js";
 
-// ... import ...
-
 const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
 const analytics = getAnalytics(app);
 
-// Aspettiamo che l'HTML sia caricato prima di controllare l'URL
-window.addEventListener('DOMContentLoaded', () => {
-    controllaAccessoStanza();
-});
-
-// Aggiungi questa variabile globale
+// Variabile globale per il parametro nell'URL
 const params = new URLSearchParams(window.location.search);
 const stanzaIdDaUrl = params.get('stanza');
 
+// L'evento DOMContentLoaded ora è pulito: non chiama controllaAccessoStanza()
+window.addEventListener('DOMContentLoaded', () => {
+    console.log("Pagina caricata, in attesa del click sul disclaimer.");
+});
+
 document.getElementById('btnChiudiDisclaimer').addEventListener('click', () => {
-    // Se c'è un ID stanza, non mostrare la home classica, entra nella stanza
+    // Se c'è un ID stanza nell'URL, entriamo nella stanza
     if (stanzaIdDaUrl) {
         controllaAccessoStanza(); 
     } else {
+        // Altrimenti mostriamo la schermata principale (creazione avventura)
         document.getElementById('disclaimer-screen').style.display = 'none';
         document.getElementById('home-screen').style.display = 'block';
     }
 });
 
-// ... resto del codice del bottone btnCreaAvventura ...
 document.getElementById('btnCreaAvventura').addEventListener('click', () => {
     const nomeAvventura = document.getElementById('nuovaAvventuraNome').value;
     const numGiocatori = document.getElementById('numeroGiocatori').value;
@@ -37,7 +35,6 @@ document.getElementById('btnCreaAvventura').addEventListener('click', () => {
         return;
     }
 
-    // Torniamo a usare Date.now() per avere stanze uniche ogni volta
     const stanzaId = Date.now().toString(); 
     
     set(ref(database, 'stanze/' + stanzaId), {
@@ -48,7 +45,6 @@ document.getElementById('btnCreaAvventura').addEventListener('click', () => {
         },
         stato: 'attesa'
     }).then(() => {
-        // Ora il link punterà all'ID univoco appena creato
         const linkStanza = window.location.href.split('?')[0] + "?stanza=" + stanzaId;
         
         document.getElementById('home-screen').innerHTML = `
@@ -61,14 +57,15 @@ document.getElementById('btnCreaAvventura').addEventListener('click', () => {
         alert("Errore: " + error.message);
     });
 });
+
 function controllaAccessoStanza() {
-    // Usiamo stanzaIdDaUrl (la variabile globale)
     if (stanzaIdDaUrl) {
         document.getElementById('disclaimer-screen').style.display = 'none';
         document.getElementById('home-screen').style.display = 'block';
         
         const stanzaRef = ref(database, 'stanze/' + stanzaIdDaUrl);
         
+        // Aggiungiamo il Giocatore 2 solo dopo il click
         get(child(ref(database), 'stanze/' + stanzaIdDaUrl + '/giocatori/Giocatore 2')).then((snapshot) => {
             if (!snapshot.exists()) {
                 update(ref(database, 'stanze/' + stanzaIdDaUrl + '/giocatori'), {
@@ -77,6 +74,7 @@ function controllaAccessoStanza() {
             }
         });
 
+        // Sincronizzazione in tempo reale
         onValue(stanzaRef, (snapshot) => {
             if (snapshot.exists()) {
                 const datiStanza = snapshot.val();
