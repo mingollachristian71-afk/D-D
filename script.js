@@ -14,18 +14,6 @@ const stanzaIdDaUrl = params.get('stanza');
 window.addEventListener('DOMContentLoaded', () => {
     console.log("Pagina caricata, in attesa del click sul disclaimer.");
 });
-
-document.getElementById('btnChiudiDisclaimer').addEventListener('click', () => {
-    // Se c'è un ID stanza nell'URL, entriamo nella stanza
-    if (stanzaIdDaUrl) {
-        controllaAccessoStanza(); 
-    } else {
-        // Altrimenti mostriamo la schermata principale (creazione avventura)
-        document.getElementById('disclaimer-screen').style.display = 'none';
-        document.getElementById('home-screen').style.display = 'block';
-    }
-});
-
 document.getElementById('btnCreaAvventura').addEventListener('click', () => {
     const nomeAvventura = document.getElementById('nuovaAvventuraNome').value;
     const numGiocatori = document.getElementById('numeroGiocatori').value;
