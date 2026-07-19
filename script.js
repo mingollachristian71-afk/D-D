@@ -36,11 +36,13 @@ document.getElementById('btnCreaAvventura').addEventListener('click', () => {
 
     const stanzaId = Date.now().toString(); 
     
-    // Salviamo la stanza con il limite giocatori
+    // Salviamo la stanza con la struttura corretta per i giocatori
     set(ref(database, 'stanze/' + stanzaId), {
         nome: nomeAvventura,
         totaleGiocatori: numGiocatori,
-        master: "Giocatore 1",
+        giocatori: {
+            "Giocatore 1": "Master"
+        },
         stato: 'attesa'
     }).then(() => {
         // Creiamo dinamicamente la schermata di attesa
@@ -51,7 +53,7 @@ document.getElementById('btnCreaAvventura').addEventListener('click', () => {
             <button onclick="navigator.clipboard.writeText('${linkStanza}')">Copia Link Invito</button>
             <p>Link: ${linkStanza}</p>
             <h3>Giocatori in attesa:</h3>
-            <ul id="lista-giocatori"><li>Master (Tu)</li></ul>
+            <ul id="lista-giocatori"><li>Giocatore 1 (Master)</li></ul>
         `;
     }).catch((error) => {
         alert("Errore: " + error.message);
