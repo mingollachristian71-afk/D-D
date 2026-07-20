@@ -9,45 +9,59 @@
 <body>
 
     <!-- Schermata del Disclaimer -->
-    <div id="disclaimer-screen" class="screen" style="display: block;">
+    <div id="disclaimer-screen" class="screen">
         <h1>Benvenuti giocatori!</h1>
-        <p>Il sito non supporta chat audio quindi bisogna usufruire di canali come Discord e WhatsApp.</p>
-        <p>Questo gioco è un tributo al famoso gioco di ruolo D&D, ma per renderlo più originale durante lo sviluppo ho aggiunto classi, regole, abilità e creature da affrontare.</p>
+        <p>Il sito non supporta chat audio, usate Discord o WhatsApp.</p>
         <button id="btnChiudiDisclaimer">OK, ho capito</button>
-
     </div>
-    <div id="login-giocatore-screen" style="display: none;">
+
+    <!-- Login Giocatore -->
+    <div id="login-giocatore-screen" class="screen" style="display: none;">
         <h2>Unisciti alla partita</h2>
         <input type="text" id="inputNomeGiocatore" placeholder="Inserisci il tuo nome">
         <button id="btnEntraStanza">Entra in stanza</button>
     </div>
-    <!-- Schermata Home (Menu) -->
+
+    <!-- Home screen (Menu Principale) -->
     <div id="home-screen" class="screen" style="display: none;">
         <h1>Menu Principale</h1>
-
-    <!-- Sezione Nuova Avventura -->
-    <div class="menu-section">
-        <h3>Inizia nuova avventura</h3>
-        <input type="text" id="nuovaAvventuraNome" placeholder="Nome avventura">
-        <!-- Aggiungi questo sotto l'input del nome avventura -->
-        <input type="number" id="numeroGiocatori" placeholder="Numero totale giocatori (Master incluso)" min="2">
-        <br>
-        <button id="btnCreaAvventura">Inizia avventura</button>
-
-    </div>
-
-    <hr>
-
-    <!-- Sezione Avventure Salvate -->
-    <div class="menu-section">
-        <h3>Avventure salvate</h3>
-        <div id="lista-avventure">
-            <!-- Qui verranno caricate le avventure salvate -->
-            <p>Nessuna avventura salvata al momento.</p>
+        <div class="menu-section">
+            <h3>Inizia nuova avventura</h3>
+            <input type="text" id="nuovaAvventuraNome" placeholder="Nome avventura">
+            <input type="number" id="numeroGiocatori" placeholder="Totale giocatori (Master incluso)" min="2">
+            <br>
+            <button id="btnCreaAvventura">Inizia avventura</button>
         </div>
     </div>
-</div>
-    <script type="module" src="script.js"></script>
 
+    <!-- Schermata Chat (Solo Master) -->
+    <div id="master-chat-screen" class="screen" style="display: none;">
+        <h1>Chat del Master</h1>
+        <div id="chat-box"></div>
+        <textarea id="msgMaster" placeholder="Scrivi un messaggio per i giocatori..."></textarea>
+        <button id="btnInviaChat">Invia a tutti</button>
+    </div>
+
+    <!-- Creazione Personaggio (Giocatori) -->
+    <div id="creazione-personaggio-screen" class="screen" style="display: none;">
+        <h1>Crea il tuo Personaggio</h1>
+        <input type="text" id="nomePG" placeholder="Nome Personaggio">
+        <textarea id="descrizionePG" placeholder="Descrizione Fisica"></textarea>
+        <input type="text" id="obiettivoPG" placeholder="Obiettivo">
+        
+        <h3>Caratteristiche (Scegli i valori)</h3>
+        <div id="caratteristiche-container">
+            Forza: <select class="stat"><option>15</option><option>14</option><option>13</option><option>12</option><option>10</option><option>8</option></select><br>
+            Costituzione: <select class="stat"><option>15</option><option>14</option><option>13</option><option>12</option><option>10</option><option>8</option></select><br>
+            Destrezza: <select class="stat"><option>15</option><option>14</option><option>13</option><option>12</option><option>10</option><option>8</option></select><br>
+            Intelligenza: <select class="stat"><option>15</option><option>14</option><option>13</option><option>12</option><option>10</option><option>8</option></select><br>
+            Saggezza: <select class="stat"><option>15</option><option>14</option><option>13</option><option>12</option><option>10</option><option>8</option></select><br>
+            Carisma: <select class="stat"><option>15</option><option>14</option><option>13</option><option>12</option><option>10</option><option>8</option></select>
+        </div>
+        <br>
+        <button id="btnSalvaPG">Salva Personaggio</button>
+    </div>
+
+    <script type="module" src="script.js"></script>
 </body>
 </html>
