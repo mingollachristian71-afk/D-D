@@ -2,7 +2,6 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/12.16.0/fireba
 import { getDatabase, ref, set, get, onValue, update, child } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-database.js";
 import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-analytics.js";
 
-// 1. Configurazione definita PER PRIMA
 const firebaseConfig = {
   apiKey: "AIzaSyAZq5MjHGMUJm6r_zZWvToPl76vbwVVJnU",
   authDomain: "dnd-toolset-ac6d4.firebaseapp.com",
@@ -14,17 +13,11 @@ const firebaseConfig = {
   measurementId: "G-1F0K331B7Z"
 };
 
-// 2. Inizializzazione che usa la configurazione sopra
 const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
 const analytics = getAnalytics(app);
 
 let isListening = false; 
-
-const params = new URLSearchParams(window.location.search);
-const stanzaIdDaUrl = params.get('stanza');
-
-// --- TUTTO IL RESTO DEL CODICE ---
 
 const params = new URLSearchParams(window.location.search);
 const stanzaIdDaUrl = params.get('stanza');
@@ -61,7 +54,6 @@ document.getElementById('btnCreaAvventura').addEventListener('click', () => {
         giocatori: { "Giocatore 1": "Master" },
         stato: 'attesa'
     }).then(() => {
-        // Ora, ogni volta che la stanza cambia, riscriviamo tutto inclusa la parte del link
         onValue(stanzaRef, (snapshot) => {
             const dati = snapshot.val();
             const lista = Object.keys(dati.giocatori).map(n => `<li>${n}</li>`).join('');
@@ -79,14 +71,11 @@ document.getElementById('btnCreaAvventura').addEventListener('click', () => {
 
 function controllaAccessoStanza() {
     document.getElementById('disclaimer-screen').style.display = 'none';
-    
-    // Se c'è una stanza nell'URL, chiediamo il nome
     if (stanzaIdDaUrl) {
         document.getElementById('login-giocatore-screen').style.display = 'block';
     }
 }
 
-// Aggiungi questo evento per il bottone di login
 document.getElementById('btnEntraStanza').addEventListener('click', () => {
     const nomeInserito = document.getElementById('inputNomeGiocatore').value;
     
@@ -95,25 +84,27 @@ document.getElementById('btnEntraStanza').addEventListener('click', () => {
         return;
     }
 
-    // Nascondi login e mostra la stanza
     document.getElementById('login-giocatore-screen').style.display = 'none';
     document.getElementById('home-screen').style.display = 'block';
 
-    // Salva il nome nel database come nuovo giocatore
     update(ref(database, 'stanze/' + stanzaIdDaUrl + '/giocatori'), {
         [nomeInserito]: "Attivo"
     });
 
-    // Avvia l'ascolto della stanza
-    const stanzaRef = ref(database, 'stanze/' + stanzaIdDaUrl);
-    onValue(stanzaRef, (snapshot) => {
-        const dati = snapshot.val();
-        const lista = Object.keys(dati.giocatori).map(n => `<li>${n}</li>`).join('');
-        document.getElementById('home-screen').innerHTML = `
-            <h1>${dati.nome}</h1>
-            <h3>Giocatori presenti:</h3>
-            <ul>${lista}</ul>
-            <p>Stato: ${dati.stato}</p>
-        `;
-    });
+    if (!isListening) {
+        isListening = true;
+        const stanzaRef = ref(database, 'stanze/' + stanzaIdDaUrl);
+        onValue(stanzaRef, (snapshot) => {
+            const dati = snapshot.val();
+            if (dati) {
+                const lista = Object.keys(dati.giocatori).map(n => `<li>${n}</li>`).join('');
+                document.getElementById('home-screen').innerHTML = `
+                    <h1>${dati.nome}</h1>
+                    <h3>Giocatori presenti:</h3>
+                    <ul>${lista}</ul>
+                    <p>Stato: ${dati.stato}</p>
+                `;
+            }
+        });
+    }
 });
