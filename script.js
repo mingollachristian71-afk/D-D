@@ -22,10 +22,6 @@ let isListening = false;
 const params = new URLSearchParams(window.location.search);
 const stanzaIdDaUrl = params.get('stanza');
 
-window.addEventListener('DOMContentLoaded', () => {
-    console.log("Pagina caricata");
-});
-
 document.getElementById('btnChiudiDisclaimer').addEventListener('click', () => {
     document.getElementById('disclaimer-screen').style.display = 'none';
     if (stanzaIdDaUrl) {
@@ -56,7 +52,10 @@ document.getElementById('btnCreaAvventura').addEventListener('click', () => {
     }).then(() => {
         onValue(stanzaRef, (snapshot) => {
             const dati = snapshot.val();
-            const lista = Object.keys(dati.giocatori).map(n => `<li>${n}</li>`).join('');
+            // NUOVA LOGICA PER I NOMI
+            const lista = Object.entries(dati.giocatori).map(([nome, ruolo]) => {
+                return `<li>${ruolo === "Master" ? "Master" : nome}</li>`;
+            }).join('');
             
             document.getElementById('home-screen').innerHTML = `
                 <h1>${dati.nome}</h1>
@@ -97,7 +96,11 @@ document.getElementById('btnEntraStanza').addEventListener('click', () => {
         onValue(stanzaRef, (snapshot) => {
             const dati = snapshot.val();
             if (dati) {
-                const lista = Object.keys(dati.giocatori).map(n => `<li>${n}</li>`).join('');
+                // NUOVA LOGICA PER I NOMI
+                const lista = Object.entries(dati.giocatori).map(([nome, ruolo]) => {
+                    return `<li>${ruolo === "Master" ? "Master" : nome}</li>`;
+                }).join('');
+                
                 document.getElementById('home-screen').innerHTML = `
                     <h1>${dati.nome}</h1>
                     <h3>Giocatori presenti:</h3>
