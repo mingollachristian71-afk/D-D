@@ -77,18 +77,22 @@ document.getElementById('btnCreaAvventura').addEventListener('click', () => {
     const numGiocatori = document.getElementById('numeroGiocatori').value;
     if (nomeAvventura.trim() === "" || numGiocatori < 2) return alert("Inserisci dati validi!");
 
+    mioNome = "Master"; // <--- AGGIUNGI QUESTO: il creatore è il Master!
+
     const stanzaId = Date.now().toString(); 
     const stanzaRef = ref(database, 'stanze/' + stanzaId);
     const linkStanza = window.location.href.split('?')[0] + "?stanza=" + stanzaId;
     
     set(stanzaRef, {
-    nome: nomeAvventura,
-    giocatori: { "Master": "Master" }, // Salviamo il nome "Master" come chiave
-    stato: 'attesa'
-}).then(() => {
-    // ...
+        nome: nomeAvventura,
+        giocatori: { "Master": "Master" }, 
+        stato: 'attesa'
+    }).then(() => {
+        onValue(stanzaRef, (snapshot) => {
+            aggiornaUIStanza(snapshot.val(), stanzaId, linkStanza);
+        });
+    });
 });
-
 function controllaAccessoStanza() {
     document.getElementById('login-giocatore-screen').style.display = 'block';
 }
