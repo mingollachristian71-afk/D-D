@@ -18,7 +18,6 @@ const database = getDatabase(app);
 const analytics = getAnalytics(app);
 
 let isListening = false; 
-
 const params = new URLSearchParams(window.location.search);
 const stanzaIdDaUrl = params.get('stanza');
 
@@ -31,14 +30,44 @@ document.getElementById('btnChiudiDisclaimer').addEventListener('click', () => {
     }
 });
 
+// Funzione helper per aggiornare la UI della stanza
+function aggiornaUIStanza(dati, stanzaId, linkStanza = "") {
+    const isMaster = dati.giocatori["Giocatore 1"] === "Master";
+    const lista = Object.entries(dati.giocatori).map(([nome, ruolo]) => {
+        return `<li>${ruolo === "Master" ? "Master" : nome}</li>`;
+    }).join('');
+
+    // Tasto Avanzare solo per il Master
+    const btnAvanzare = isMaster ? `<button id="btnAvanzaGioco">AVANZARE</button>` : "";
+
+    document.getElementById('home-screen').innerHTML = `
+        <h1>${dati.nome}</h1>
+        ${linkStanza ? `<p>Link: <b>${linkStanza}</b></p>` : ""}
+        <h3>Giocatori presenti:</h3>
+        <ul>${lista}</ul>
+        <p>Stato: ${dati.stato}</p>
+        ${btnAvanzare}
+    `;
+
+    // Evento tasto Avanzare
+    const btnAvanza = document.getElementById('btnAvanzaGioco');
+    if (btnAvanza) {
+        btnAvanza.addEventListener('click', () => {
+            update(ref(database, 'stanze/' + stanzaId), { stato: 'creazione' });
+        });
+    }
+
+    // Se lo stato cambia in 'creazione', tutti vanno alla creazione PG
+    if (dati.stato === 'creazione') {
+        document.getElementById('home-screen').style.display = 'none';
+        document.getElementById('creazione-personaggio-screen').style.display = 'block';
+    }
+}
+
 document.getElementById('btnCreaAvventura').addEventListener('click', () => {
     const nomeAvventura = document.getElementById('nuovaAvventuraNome').value;
     const numGiocatori = document.getElementById('numeroGiocatori').value;
-    
-    if (nomeAvventura.trim() === "" || numGiocatori < 2) {
-        alert("Inserisci un nome e almeno 2 giocatori!");
-        return;
-    }
+    if (nomeAvventura.trim() === "" || numGiocatori < 2) return alert("Inserisci dati validi!");
 
     const stanzaId = Date.now().toString(); 
     const stanzaRef = ref(database, 'stanze/' + stanzaId);
@@ -46,68 +75,45 @@ document.getElementById('btnCreaAvventura').addEventListener('click', () => {
     
     set(stanzaRef, {
         nome: nomeAvventura,
-        totaleGiocatori: numGiocatori,
         giocatori: { "Giocatore 1": "Master" },
         stato: 'attesa'
     }).then(() => {
         onValue(stanzaRef, (snapshot) => {
-            const dati = snapshot.val();
-            // NUOVA LOGICA PER I NOMI
-            const lista = Object.entries(dati.giocatori).map(([nome, ruolo]) => {
-                return `<li>${ruolo === "Master" ? "Master" : nome}</li>`;
-            }).join('');
-            
-            document.getElementById('home-screen').innerHTML = `
-                <h1>${dati.nome}</h1>
-                <p>Link (invialo ai giocatori): <br> <b>${linkStanza}</b></p>
-                <h3>Giocatori presenti:</h3>
-                <ul>${lista}</ul>
-                <p>Stato: ${dati.stato}</p>
-            `;
+            aggiornaUIStanza(snapshot.val(), stanzaId, linkStanza);
         });
     });
 });
 
 function controllaAccessoStanza() {
-    document.getElementById('disclaimer-screen').style.display = 'none';
-    if (stanzaIdDaUrl) {
-        document.getElementById('login-giocatore-screen').style.display = 'block';
-    }
+    document.getElementById('login-giocatore-screen').style.display = 'block';
 }
 
 document.getElementById('btnEntraStanza').addEventListener('click', () => {
     const nomeInserito = document.getElementById('inputNomeGiocatore').value;
-    
-    if (nomeInserito.trim() === "") {
-        alert("Inserisci un nome!");
-        return;
-    }
+    if (nomeInserito.trim() === "") return alert("Inserisci un nome!");
 
     document.getElementById('login-giocatore-screen').style.display = 'none';
     document.getElementById('home-screen').style.display = 'block';
 
-    update(ref(database, 'stanze/' + stanzaIdDaUrl + '/giocatori'), {
-        [nomeInserito]: "Attivo"
-    });
+    update(ref(database, 'stanze/' + stanzaIdDaUrl + '/giocatori'), { [nomeInserito]: "Attivo" });
 
     if (!isListening) {
         isListening = true;
-        const stanzaRef = ref(database, 'stanze/' + stanzaIdDaUrl);
-        onValue(stanzaRef, (snapshot) => {
-            const dati = snapshot.val();
-            if (dati) {
-                // NUOVA LOGICA PER I NOMI
-                const lista = Object.entries(dati.giocatori).map(([nome, ruolo]) => {
-                    return `<li>${ruolo === "Master" ? "Master" : nome}</li>`;
-                }).join('');
-                
-                document.getElementById('home-screen').innerHTML = `
-                    <h1>${dati.nome}</h1>
-                    <h3>Giocatori presenti:</h3>
-                    <ul>${lista}</ul>
-                    <p>Stato: ${dati.stato}</p>
-                `;
-            }
+        onValue(ref(database, 'stanze/' + stanzaIdDaUrl), (snapshot) => {
+            aggiornaUIStanza(snapshot.val(), stanzaIdDaUrl);
         });
     }
+});
+
+// LOGICA CARATTERISTICHE (NO DUPLICATI)
+document.querySelectorAll('.stat').forEach(select => {
+    select.addEventListener('change', (e) => {
+        const val = e.target.value;
+        document.querySelectorAll('.stat').forEach(s => {
+            if (s !== e.target && s.value === val && val !== "") {
+                alert("Valore già assegnato!");
+                e.target.value = "";
+            }
+        });
+    });
 });
