@@ -74,25 +74,41 @@ document.getElementById('btnCreaAvventura').addEventListener('click', () => {
 
 function controllaAccessoStanza() {
     document.getElementById('disclaimer-screen').style.display = 'none';
-    document.getElementById('home-screen').style.display = 'block';
-    const stanzaRef = ref(database, 'stanze/' + stanzaIdDaUrl);
     
-    get(child(ref(database), 'stanze/' + stanzaIdDaUrl + '/giocatori/Giocatore 2')).then((snapshot) => {
-        if (!snapshot.exists()) {
-            update(ref(database, 'stanze/' + stanzaIdDaUrl + '/giocatori'), { "Giocatore 2": "Attivo" });
-        }
+    // Se c'è una stanza nell'URL, chiediamo il nome
+    if (stanzaIdDaUrl) {
+        document.getElementById('login-giocatore-screen').style.display = 'block';
+    }
+}
+
+// Aggiungi questo evento per il bottone di login
+document.getElementById('btnEntraStanza').addEventListener('click', () => {
+    const nomeInserito = document.getElementById('inputNomeGiocatore').value;
+    
+    if (nomeInserito.trim() === "") {
+        alert("Inserisci un nome!");
+        return;
+    }
+
+    // Nascondi login e mostra la stanza
+    document.getElementById('login-giocatore-screen').style.display = 'none';
+    document.getElementById('home-screen').style.display = 'block';
+
+    // Salva il nome nel database come nuovo giocatore
+    update(ref(database, 'stanze/' + stanzaIdDaUrl + '/giocatori'), {
+        [nomeInserito]: "Attivo"
     });
 
+    // Avvia l'ascolto della stanza
+    const stanzaRef = ref(database, 'stanze/' + stanzaIdDaUrl);
     onValue(stanzaRef, (snapshot) => {
-        if (snapshot.exists()) {
-            const dati = snapshot.val();
-            const lista = Object.keys(dati.giocatori).map(n => `<li>${n}</li>`).join('');
-            document.getElementById('home-screen').innerHTML = `
-                <h1>${dati.nome}</h1>
-                <h3>Giocatori presenti:</h3>
-                <ul>${lista}</ul>
-                <p>Stato: ${dati.stato}</p>
-            `;
-        }
+        const dati = snapshot.val();
+        const lista = Object.keys(dati.giocatori).map(n => `<li>${n}</li>`).join('');
+        document.getElementById('home-screen').innerHTML = `
+            <h1>${dati.nome}</h1>
+            <h3>Giocatori presenti:</h3>
+            <ul>${lista}</ul>
+            <p>Stato: ${dati.stato}</p>
+        `;
     });
-}
+});
