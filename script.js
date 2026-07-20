@@ -47,20 +47,25 @@ document.getElementById('btnCreaAvventura').addEventListener('click', () => {
     }
 
     const stanzaId = Date.now().toString(); 
+    const stanzaRef = ref(database, 'stanze/' + stanzaId); // Riferimento alla stanza
     
-    set(ref(database, 'stanze/' + stanzaId), {
+    set(stanzaRef, {
         nome: nomeAvventura,
         totaleGiocatori: numGiocatori,
         giocatori: { "Giocatore 1": "Master" },
         stato: 'attesa'
     }).then(() => {
-        const linkStanza = window.location.href.split('?')[0] + "?stanza=" + stanzaId;
-        document.getElementById('home-screen').innerHTML = `
-            <h1>${nomeAvventura}</h1>
-            <p>Link (invialo ai giocatori): <br> <b>${linkStanza}</b></p>
-            <h3>Giocatori in attesa:</h3>
-            <ul id="lista-giocatori"><li>Giocatore 1 (Master)</li></ul>
-        `;
+        // Ora colleghiamo l'ascoltatore in tempo reale anche sul PC
+        onValue(stanzaRef, (snapshot) => {
+            const dati = snapshot.val();
+            const lista = Object.keys(dati.giocatori).map(n => `<li>${n}</li>`).join('');
+            document.getElementById('home-screen').innerHTML = `
+                <h1>${dati.nome}</h1>
+                <h3>Giocatori presenti:</h3>
+                <ul>${lista}</ul>
+                <p>Stato: ${dati.stato}</p>
+            `;
+        });
     });
 });
 
