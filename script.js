@@ -37,7 +37,6 @@ function aggiornaUIStanza(dati, stanzaId, linkStanza = "") {
         return `<li>${ruolo === "Master" ? "Master" : nome}</li>`;
     }).join('');
 
-    // Tasto Avanzare solo per il Master
     const btnAvanzare = isMaster ? `<button id="btnAvanzaGioco">AVANZARE</button>` : "";
 
     document.getElementById('home-screen').innerHTML = `
@@ -49,7 +48,6 @@ function aggiornaUIStanza(dati, stanzaId, linkStanza = "") {
         ${btnAvanzare}
     `;
 
-    // Evento tasto Avanzare
     const btnAvanza = document.getElementById('btnAvanzaGioco');
     if (btnAvanza) {
         btnAvanza.addEventListener('click', () => {
@@ -57,10 +55,17 @@ function aggiornaUIStanza(dati, stanzaId, linkStanza = "") {
         });
     }
 
-    // Se lo stato cambia in 'creazione', tutti vanno alla creazione PG
+    // GESTIONE CAMBIO SCHERMATA
     if (dati.stato === 'creazione') {
         document.getElementById('home-screen').style.display = 'none';
-        document.getElementById('creazione-personaggio-screen').style.display = 'block';
+        
+        if (isMaster) {
+            // Il Master va alla sua chat
+            document.getElementById('master-chat-screen').style.display = 'block';
+        } else {
+            // I giocatori vanno alla creazione personaggio
+            document.getElementById('creazione-personaggio-screen').style.display = 'block';
+        }
     }
 }
 
