@@ -32,7 +32,7 @@ document.getElementById('btnChiudiDisclaimer').addEventListener('click', () => {
 });
 
 function aggiornaUIStanza(dati, stanzaId, linkStanza = "") {
-    const isMaster = dati.giocatori["Giocatore 1"] === "Master";
+    const isMaster = (mioNome === "Master");
     const lista = Object.entries(dati.giocatori).map(([nome, ruolo]) => {
         return `<li>${ruolo === "Master" ? "Master" : nome}</li>`;
     }).join('');
