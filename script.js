@@ -55,21 +55,22 @@ function aggiornaUIStanza(dati, stanzaId, linkStanza = "") {
         });
     }
 
+    // GESTIONE CAMBIO SCHERMATA RIGOROSA
     if (dati.stato === 'creazione') {
         document.getElementById('home-screen').style.display = 'none';
         
         if (isMaster) {
+            // SOLO MASTER: vede Chat e pulsanti
             document.getElementById('master-chat-screen').style.display = 'block';
             document.getElementById('creazione-personaggio-screen').style.display = 'none';
-            // Il Master vede i comandi chat
             document.getElementById('msgMaster').style.display = 'block';
             document.getElementById('btnInviaChat').style.display = 'block';
         } else {
-            document.getElementById('master-chat-screen').style.display = 'block';
+            // SOLO GIOCATORE: vede creazione, NON vede la chat (o meglio, vede solo i messaggi)
             document.getElementById('creazione-personaggio-screen').style.display = 'block';
-            // I giocatori NON vedono i comandi chat
-            document.getElementById('msgMaster').style.display = 'none';
-            document.getElementById('btnInviaChat').style.display = 'none';
+            document.getElementById('master-chat-screen').style.display = 'block'; // Necessario per vedere i messaggi
+            document.getElementById('msgMaster').style.display = 'none';      // Nascondi input
+            document.getElementById('btnInviaChat').style.display = 'none';  // Nascondi bottone
         }
     }
 }
