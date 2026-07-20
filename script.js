@@ -60,17 +60,20 @@ if (dati.stato === 'creazione') {
     document.getElementById('home-screen').style.display = 'none';
     
     if (isMaster) {
-        // MASTER: vede tutto il pannello chat
+        // MASTER: vede il pannello completo
         document.getElementById('master-chat-screen').style.display = 'block';
         document.getElementById('creazione-personaggio-screen').style.display = 'none';
         document.getElementById('msgMaster').style.display = 'block';
         document.getElementById('btnInviaChat').style.display = 'block';
     } else {
-        // GIOCATORE: vede solo la creazione, e SOLO la chat-box dentro il pannello
+        // GIOCATORE: vede la creazione, e SOLO la chat-box (non tutto il pannello)
         document.getElementById('creazione-personaggio-screen').style.display = 'block';
         
-        // Invece di mostrare tutto il pannello, mostriamo solo la box dei messaggi
-        document.getElementById('master-chat-screen').style.display = 'block';
+        // Invece di mostrare tutto il blocco, mostriamo solo la lista dei messaggi
+        // Assicurati di non mostrare il titolo "Chat del Master" se è dentro questo ID
+        document.getElementById('master-chat-screen').style.display = 'none'; 
+        document.getElementById('chat-box').style.display = 'block'; // Mostra solo i messaggi
+        
         document.getElementById('msgMaster').style.display = 'none';
         document.getElementById('btnInviaChat').style.display = 'none';
     }
