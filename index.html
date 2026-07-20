@@ -56,18 +56,32 @@
     <!-- Creazione Personaggio (Giocatori) -->
     <div id="creazione-personaggio-screen" class="screen" style="display: none;">
         <h1>Crea il tuo Personaggio</h1>
-        <input type="text" id="nomePG" placeholder="Nome Personaggio">
-        <textarea id="descrizionePG" placeholder="Descrizione Fisica"></textarea>
-        <input type="text" id="obiettivoPG" placeholder="Obiettivo">
+        <input type="text" id="nomePG" placeholder="Nome Personaggio"><br>
+        <textarea id="descrizionePG" placeholder="Descrizione Fisica"></textarea><br>
+        <input type="text" id="obiettivoPG" placeholder="Obiettivo"><br>
         
+        <!-- Spazi per Classe e Razza -->
+        <div style="margin-bottom: 10px;">
+            <input type="text" id="classePG" placeholder="Classe"> 
+        </div>
+        <div style="margin-bottom: 20px;">
+            <input type="text" id="razzaPG" placeholder="Razza">
+        </div>
+
         <h3>Caratteristiche (Scegli i valori)</h3>
-        <div id="caratteristiche-container">
-            Forza: <select class="stat"><option value="">Seleziona</option><option>15</option><option>14</option><option>13</option><option>12</option><option>10</option><option>8</option></select><br>
-            Costituzione: <select class="stat"><option value="">Seleziona</option><option>15</option><option>14</option><option>13</option><option>12</option><option>10</option><option>8</option></select><br>
-            Destrezza: <select class="stat"><option value="">Seleziona</option><option>15</option><option>14</option><option>13</option><option>12</option><option>10</option><option>8</option></select><br>
-            Intelligenza: <select class="stat"><option value="">Seleziona</option><option>15</option><option>14</option><option>13</option><option>12</option><option>10</option><option>8</option></select><br>
-            Saggezza: <select class="stat"><option value="">Seleziona</option><option>15</option><option>14</option><option>13</option><option>12</option><option>10</option><option>8</option></select><br>
-            Carisma: <select class="stat"><option value="">Seleziona</option><option>15</option><option>14</option><option>13</option><option>12</option><option>10</option><option>8</option></select>
+        <div id="caratteristiche-container" style="display: flex; gap: 40px;">
+            <!-- Colonna Sinistra -->
+            <div>
+                Forza: <select class="stat"><option value="">-</option><option>15</option><option>14</option><option>13</option><option>12</option><option>10</option><option>8</option></select><br>
+                Costituzione: <select class="stat"><option value="">-</option><option>15</option><option>14</option><option>13</option><option>12</option><option>10</option><option>8</option></select><br>
+                Destrezza: <select class="stat"><option value="">-</option><option>15</option><option>14</option><option>13</option><option>12</option><option>10</option><option>8</option></select>
+            </div>
+            <!-- Colonna Destra -->
+            <div>
+                Intelligenza: <select class="stat"><option value="">-</option><option>15</option><option>14</option><option>13</option><option>12</option><option>10</option><option>8</option></select><br>
+                Saggezza: <select class="stat"><option value="">-</option><option>15</option><option>14</option><option>13</option><option>12</option><option>10</option><option>8</option></select><br>
+                Carisma: <select class="stat"><option value="">-</option><option>15</option><option>14</option><option>13</option><option>12</option><option>10</option><option>8</option></select>
+            </div>
         </div>
         <br>
         <button id="btnSalvaPG">Salva Personaggio</button>
