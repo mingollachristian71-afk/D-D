@@ -55,23 +55,24 @@ function aggiornaUIStanza(dati, stanzaId, linkStanza = "") {
         });
     }
 
-    // GESTIONE CAMBIO SCHERMATA RIGOROSA
-    if (dati.stato === 'creazione') {
-        document.getElementById('home-screen').style.display = 'none';
+// GESTIONE CAMBIO SCHERMATA RIGOROSA
+if (dati.stato === 'creazione') {
+    document.getElementById('home-screen').style.display = 'none';
+    
+    if (isMaster) {
+        // MASTER: vede tutto il pannello chat
+        document.getElementById('master-chat-screen').style.display = 'block';
+        document.getElementById('creazione-personaggio-screen').style.display = 'none';
+        document.getElementById('msgMaster').style.display = 'block';
+        document.getElementById('btnInviaChat').style.display = 'block';
+    } else {
+        // GIOCATORE: vede solo la creazione, e SOLO la chat-box dentro il pannello
+        document.getElementById('creazione-personaggio-screen').style.display = 'block';
         
-        if (isMaster) {
-            // SOLO MASTER: vede Chat e pulsanti
-            document.getElementById('master-chat-screen').style.display = 'block';
-            document.getElementById('creazione-personaggio-screen').style.display = 'none';
-            document.getElementById('msgMaster').style.display = 'block';
-            document.getElementById('btnInviaChat').style.display = 'block';
-        } else {
-            // SOLO GIOCATORE: vede creazione, NON vede la chat (o meglio, vede solo i messaggi)
-            document.getElementById('creazione-personaggio-screen').style.display = 'block';
-            document.getElementById('master-chat-screen').style.display = 'block'; // Necessario per vedere i messaggi
-            document.getElementById('msgMaster').style.display = 'none';      // Nascondi input
-            document.getElementById('btnInviaChat').style.display = 'none';  // Nascondi bottone
-        }
+        // Invece di mostrare tutto il pannello, mostriamo solo la box dei messaggi
+        document.getElementById('master-chat-screen').style.display = 'block';
+        document.getElementById('msgMaster').style.display = 'none';
+        document.getElementById('btnInviaChat').style.display = 'none';
     }
 }
 
