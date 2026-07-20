@@ -32,7 +32,8 @@ document.getElementById('btnChiudiDisclaimer').addEventListener('click', () => {
 });
 
 function aggiornaUIStanza(dati, stanzaId, linkStanza = "") {
-    const isMaster = (dati.giocatori[mioNome] === "Master");
+    if (!dati || !dati.giocatori) return; // Se i dati non sono ancora arrivati, esci.
+    const isMaster = mioNome === "Master"; // Più semplice e sicuro  
     const lista = Object.entries(dati.giocatori).map(([nome, ruolo]) => {
         return `<li>${ruolo === "Master" ? "Master" : nome}</li>`;
     }).join('');
