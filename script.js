@@ -53,32 +53,25 @@ function aggiornaUIStanza(dati, stanzaId, linkStanza = "") {
         btnAvanza.addEventListener('click', () => {
             update(ref(database, 'stanze/' + stanzaId), { stato: 'creazione' });
         });
-    }
-
-// GESTIONE CAMBIO SCHERMATA RIGOROSA
-if (dati.stato === 'creazione') {
-    document.getElementById('home-screen').style.display = 'none';
-    
-    if (isMaster) {
-        // MASTER: vede il pannello completo
-        document.getElementById('master-chat-screen').style.display = 'block';
-        document.getElementById('creazione-personaggio-screen').style.display = 'none';
-        document.getElementById('msgMaster').style.display = 'block';
-        document.getElementById('btnInviaChat').style.display = 'block';
-    } else {
-        // GIOCATORE: vede la creazione, e SOLO la chat-box (non tutto il pannello)
-        document.getElementById('creazione-personaggio-screen').style.display = 'block';
+    }    
+    // GESTIONE CAMBIO SCHERMATA RIGOROSA
+    if (dati.stato === 'creazione') {
+        document.getElementById('home-screen').style.display = 'none';
         
-        // Invece di mostrare tutto il blocco, mostriamo solo la lista dei messaggi
-        // Assicurati di non mostrare il titolo "Chat del Master" se è dentro questo ID
-        document.getElementById('master-chat-screen').style.display = 'none'; 
-        document.getElementById('chat-box').style.display = 'block'; // Mostra solo i messaggi
-        
-        document.getElementById('msgMaster').style.display = 'none';
-        document.getElementById('btnInviaChat').style.display = 'none';
+        if (isMaster) {
+            document.getElementById('master-chat-screen').style.display = 'block';
+            document.getElementById('creazione-personaggio-screen').style.display = 'none';
+            document.getElementById('msgMaster').style.display = 'block';
+            document.getElementById('btnInviaChat').style.display = 'block';
+        } else {
+            document.getElementById('creazione-personaggio-screen').style.display = 'block';
+            document.getElementById('master-chat-screen').style.display = 'none'; 
+            document.getElementById('chat-box').style.display = 'block'; 
+            document.getElementById('msgMaster').style.display = 'none';
+            document.getElementById('btnInviaChat').style.display = 'none';
+        }
     }
-}
-
+} 
 document.getElementById('btnCreaAvventura').addEventListener('click', () => {
     const nomeAvventura = document.getElementById('nuovaAvventuraNome').value;
     const numGiocatori = document.getElementById('numeroGiocatori').value;
