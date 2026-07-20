@@ -19,6 +19,11 @@ const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
 const analytics = getAnalytics(app);
 
+let isListening = false; 
+
+const params = new URLSearchParams(window.location.search);
+const stanzaIdDaUrl = params.get('stanza');
+
 // --- TUTTO IL RESTO DEL CODICE ---
 
 const params = new URLSearchParams(window.location.search);
