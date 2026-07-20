@@ -2,6 +2,13 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/12.16.0/fireba
 import { getDatabase, ref, set, get, onValue, update, child } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-database.js";
 import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-analytics.js";
 
+function nascondiTutteSchermate() {
+    document.getElementById('home-screen').style.display = 'none';
+    document.getElementById('master-chat-screen').style.display = 'none';
+    document.getElementById('creazione-personaggio-screen').style.display = 'none';
+    document.getElementById('chat-box').style.display = 'none';
+    document.getElementById('login-giocatore-screen').style.display = 'none';
+}
 const firebaseConfig = {
   apiKey: "AIzaSyAZq5MjHGMUJm6r_zZWvToPl76vbwVVJnU",
   authDomain: "dnd-toolset-ac6d4.firebaseapp.com",
@@ -43,45 +50,47 @@ function aggiornaUIStanza(dati, stanzaId, linkStanza = "") {
     if (!dati || !dati.giocatori) return;
     
     const isMaster = (mioNome === "Master");
-    const lista = Object.entries(dati.giocatori).map(([nome, ruolo]) => {
-        return `<li>${ruolo === "Master" ? "Master" : nome}</li>`;
-    }).join('');
-
-    const btnAvanzare = isMaster ? `<button id="btnAvanzaGioco">AVANZARE</button>` : "";
-
-    document.getElementById('home-screen').innerHTML = `
-        <h1>${dati.nome}</h1>
-        ${linkStanza ? `<p>Link: <b>${linkStanza}</b></p>` : ""}
-        <h3>Giocatori presenti:</h3>
-        <ul>${lista}</ul>
-        <p>Stato: ${dati.stato}</p>
-        ${btnAvanzare}
-    `;
-
-    const btnAvanza = document.getElementById('btnAvanzaGioco');
-    if (btnAvanza) {
-        btnAvanza.addEventListener('click', () => {
-            update(ref(database, 'stanze/' + stanzaId), { stato: 'creazione' });
-        });
-    }    
     
-    if (dati.stato === 'creazione') {
-        document.getElementById('home-screen').style.display = 'none';
-        
+    // 1. Reset visibilità
+    nascondiTutteSchermate();
+
+    // 2. Logica Stato "Attesa"
+    if (dati.stato === 'attesa') {
+        document.getElementById('home-screen').style.display = 'block';
+        const lista = Object.entries(dati.giocatori).map(([nome, ruolo]) => {
+            return `<li>${ruolo === "Master" ? "Master" : nome}</li>`;
+        }).join('');
+
+        const btnAvanzare = isMaster ? `<button id="btnAvanzaGioco">AVANZARE</button>` : "";
+
+        document.getElementById('home-screen').innerHTML = `
+            <h1>${dati.nome}</h1>
+            ${linkStanza ? `<p>Link: <b>${linkStanza}</b></p>` : ""}
+            <h3>Giocatori presenti:</h3>
+            <ul>${lista}</ul>
+            <p>Stato: ${dati.stato}</p>
+            ${btnAvanzare}
+        `;
+
+        const btnAvanza = document.getElementById('btnAvanzaGioco');
+        if (btnAvanza) {
+            btnAvanza.addEventListener('click', () => {
+                update(ref(database, 'stanze/' + stanzaId), { stato: 'creazione' });
+            });
+        }
+    } 
+    // 3. Logica Stato "Creazione"
+    else if (dati.stato === 'creazione') {
         if (isMaster) {
             document.getElementById('master-chat-screen').style.display = 'block';
-            document.getElementById('creazione-personaggio-screen').style.display = 'none';
             document.getElementById('msgMaster').style.display = 'block';
             document.getElementById('btnInviaChat').style.display = 'block';
         } else {
             document.getElementById('creazione-personaggio-screen').style.display = 'block';
-            document.getElementById('master-chat-screen').style.display = 'none'; 
-            document.getElementById('chat-box').style.display = 'block'; 
-            document.getElementById('msgMaster').style.display = 'none';
-            document.getElementById('btnInviaChat').style.display = 'none';
+            document.getElementById('chat-box').style.display = 'block';
         }
     }
-} 
+}
 
 document.getElementById('btnCreaAvventura').addEventListener('click', () => {
     const nomeAvventura = document.getElementById('nuovaAvventuraNome').value;
