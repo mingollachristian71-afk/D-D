@@ -18,6 +18,7 @@ const database = getDatabase(app);
 const analytics = getAnalytics(app);
 
 let isListening = false; 
+let mioNome = ""; // Salviamo il nome dell'utente
 const params = new URLSearchParams(window.location.search);
 const stanzaIdDaUrl = params.get('stanza');
 
@@ -30,7 +31,6 @@ document.getElementById('btnChiudiDisclaimer').addEventListener('click', () => {
     }
 });
 
-// Funzione helper per aggiornare la UI della stanza
 function aggiornaUIStanza(dati, stanzaId, linkStanza = "") {
     const isMaster = dati.giocatori["Giocatore 1"] === "Master";
     const lista = Object.entries(dati.giocatori).map(([nome, ruolo]) => {
@@ -55,16 +55,21 @@ function aggiornaUIStanza(dati, stanzaId, linkStanza = "") {
         });
     }
 
-    // GESTIONE CAMBIO SCHERMATA
     if (dati.stato === 'creazione') {
         document.getElementById('home-screen').style.display = 'none';
         
         if (isMaster) {
-            // Il Master va alla sua chat
             document.getElementById('master-chat-screen').style.display = 'block';
+            document.getElementById('creazione-personaggio-screen').style.display = 'none';
+            // Il Master vede i comandi chat
+            document.getElementById('msgMaster').style.display = 'block';
+            document.getElementById('btnInviaChat').style.display = 'block';
         } else {
-            // I giocatori vanno alla creazione personaggio
+            document.getElementById('master-chat-screen').style.display = 'block';
             document.getElementById('creazione-personaggio-screen').style.display = 'block';
+            // I giocatori NON vedono i comandi chat
+            document.getElementById('msgMaster').style.display = 'none';
+            document.getElementById('btnInviaChat').style.display = 'none';
         }
     }
 }
@@ -94,13 +99,13 @@ function controllaAccessoStanza() {
 }
 
 document.getElementById('btnEntraStanza').addEventListener('click', () => {
-    const nomeInserito = document.getElementById('inputNomeGiocatore').value;
-    if (nomeInserito.trim() === "") return alert("Inserisci un nome!");
+    mioNome = document.getElementById('inputNomeGiocatore').value;
+    if (mioNome.trim() === "") return alert("Inserisci un nome!");
 
     document.getElementById('login-giocatore-screen').style.display = 'none';
     document.getElementById('home-screen').style.display = 'block';
 
-    update(ref(database, 'stanze/' + stanzaIdDaUrl + '/giocatori'), { [nomeInserito]: "Attivo" });
+    update(ref(database, 'stanze/' + stanzaIdDaUrl + '/giocatori'), { [mioNome]: "Attivo" });
 
     if (!isListening) {
         isListening = true;
@@ -110,7 +115,22 @@ document.getElementById('btnEntraStanza').addEventListener('click', () => {
     }
 });
 
-// LOGICA CARATTERISTICHE (NO DUPLICATI)
+// LOGICA CHAT
+document.getElementById('btnInviaChat').addEventListener('click', () => {
+    const msg = document.getElementById('msgMaster').value;
+    if (msg.trim() === "") return;
+    update(ref(database, 'stanze/' + stanzaIdDaUrl + '/chat'), { ultimoMessaggio: msg });
+    document.getElementById('msgMaster').value = "";
+});
+
+onValue(ref(database, 'stanze/' + stanzaIdDaUrl + '/chat'), (snapshot) => {
+    const chatDati = snapshot.val();
+    if (chatDati) {
+        document.getElementById('chat-box').innerHTML = `<p><b>Master:</b> ${chatDati.ultimoMessaggio}</p>`;
+    }
+});
+
+// LOGICA CARATTERISTICHE
 document.querySelectorAll('.stat').forEach(select => {
     select.addEventListener('change', (e) => {
         const val = e.target.value;
