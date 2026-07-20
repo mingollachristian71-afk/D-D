@@ -47,7 +47,8 @@ document.getElementById('btnCreaAvventura').addEventListener('click', () => {
     }
 
     const stanzaId = Date.now().toString(); 
-    const stanzaRef = ref(database, 'stanze/' + stanzaId); // Riferimento alla stanza
+    const stanzaRef = ref(database, 'stanze/' + stanzaId);
+    const linkStanza = window.location.href.split('?')[0] + "?stanza=" + stanzaId;
     
     set(stanzaRef, {
         nome: nomeAvventura,
@@ -55,12 +56,14 @@ document.getElementById('btnCreaAvventura').addEventListener('click', () => {
         giocatori: { "Giocatore 1": "Master" },
         stato: 'attesa'
     }).then(() => {
-        // Ora colleghiamo l'ascoltatore in tempo reale anche sul PC
+        // Ora, ogni volta che la stanza cambia, riscriviamo tutto inclusa la parte del link
         onValue(stanzaRef, (snapshot) => {
             const dati = snapshot.val();
             const lista = Object.keys(dati.giocatori).map(n => `<li>${n}</li>`).join('');
+            
             document.getElementById('home-screen').innerHTML = `
                 <h1>${dati.nome}</h1>
+                <p>Link (invialo ai giocatori): <br> <b>${linkStanza}</b></p>
                 <h3>Giocatori presenti:</h3>
                 <ul>${lista}</ul>
                 <p>Stato: ${dati.stato}</p>
