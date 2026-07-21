@@ -226,3 +226,48 @@ document.getElementById('btnInfoRazza').addEventListener('click', () => {
         box.style.display = box.style.display === 'none' ? 'block' : 'none';
     }
 });
+// Salvataggio del Personaggio da parte del Giocatore
+document.getElementById('btnSalvaPG').addEventListener('click', () => {
+    const nomePG = document.getElementById('nomePG').value;
+    const descrizionePG = document.getElementById('descrizionePG').value;
+    const obiettivoPG = document.getElementById('obiettivoPG').value;
+    const classePG = document.getElementById('classePG').value;
+    const razzaPG = document.getElementById('razzaPG').value;
+
+    if (nomePG.trim() === "" || classePG === "" || razzaPG === "") {
+        return alert("Inserisci almeno il nome del personaggio, la classe e la razza!");
+    }
+
+    // Raccogliamo i valori delle caratteristiche dai menu a tendina
+    const selectStats = document.querySelectorAll('#caratteristiche-container .stat');
+    // Supponendo che l'ordine nel container sia: Forza, Costituzione, Destrezza, Intelligenza, Saggezza, Carisma
+    const caratteristiche = {
+        forza: selectStats[0].value,
+        costituzione: selectStats[1].value,
+        destrezza: selectStats[2].value,
+        intelligenza: selectStats[3].value,
+        saggezza: selectStats[4].value,
+        carisma: selectStats[5].value
+    };
+
+    // Salvataggio dei dati del personaggio su Firebase sotto il nome del giocatore corrente
+    const pgRef = ref(database, 'stanze/' + stanzaIdDaUrl + '/personaggi/' + mioNome);
+    
+    set(pgRef, {
+        nomePG: nomePG,
+        descrizione: descrizionePG,
+        obiettivo: obiettivoPG,
+        classe: classePG,
+        razza: razzaPG,
+        statistiche: caratteristiche,
+        creato: true
+    }).then(() => {
+        alert("Personaggio salvato con successo!");
+        
+        // Passiamo allo stato visivo in cui il PG vede la chat del Master e non può più modificare la scheda
+        document.getElementById('creazione-personaggio-screen').style.display = 'none';
+        document.getElementById('chat-box').style.display = 'block';
+    }).catch((error) => {
+        alert("Errore durante il salvataggio: " + error.message);
+    });
+});
