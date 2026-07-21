@@ -30,6 +30,7 @@ button {
 button:hover {
     background-color: #e68900;
 }
+
 .menu-section {
     margin: 20px 0;
     padding: 10px;
@@ -44,25 +45,18 @@ input {
     border: none;
 }
 
-#chat-box {
-    border: 1px solid #ccc;
-    padding: 10px;
-    margin: 10px 0;
-    min-height: 50px;
-    background: #222; /* Per renderla visibile su sfondo nero */
-}
 /* Stile uniforme per tutti gli input di testo */
 input[type="text"], 
 textarea {
     width: 90%;
     padding: 12px;
     margin: 8px 0;
-    background-color: #333; /* Grigio scuro simile alla tua textarea */
-    color: white;           /* Testo chiaro */
-    border: 1px solid #555; /* Bordo sottile */
-    border-radius: 5px;     /* Angoli arrotondati */
+    background-color: #333;
+    color: white;            
+    border: 1px solid #555; 
+    border-radius: 5px;     
     font-family: Arial, sans-serif;
-    box-sizing: border-box; /* Importante per non far uscire l'input dai bordi */
+    box-sizing: border-box; 
 }
 
 /* Stile specifico per il contenitore delle statistiche per non farlo disordinare */
@@ -79,6 +73,7 @@ select.stat {
     border: 1px solid #555;
     padding: 5px;
 }
+
 /* Stile per il pulsante informativo */
 .btn-info {
     background: none;
