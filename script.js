@@ -76,7 +76,7 @@ function aggiornaUIStanza(dati, stanzaId, linkStanza = "") {
             return `<li>${ruolo === "Master" ? "Master" : nome}</li>`;
         }).join('');
 
-        const btnAvanzare = isMaster ? `<button id="btnAvanzaGioco">AVANZARE</button>` : "";
+        const btnAvanzare = isMaster ? `<button id="btnAvanzaGioco">AVANZARE ALLA CREAZIONE PG</button>` : "";
 
         document.getElementById('home-screen').innerHTML = `
             <h1>${dati.nome}</h1>
@@ -106,13 +106,14 @@ function aggiornaUIStanza(dati, stanzaId, linkStanza = "") {
                 ${linkStanza ? `<p>Link d'invito: <b>${linkStanza}</b></p>` : ""}
                 <h3>Giocatori e Stato Personaggi:</h3>
                 <ul>${lista}</ul>
-                <p>Fase di creazione personaggio in corso per i giocatori...</p>
-                <button id="btnVaiAlGioco">ENTRA NELLA SCHERMATA DI GIOCO</button>
+                <p>Fase di creazione personaggio in corso...</p>
+                <button id="btnVaiAlGioco">AVVIA LA SESSIONE DI GIOCO</button>
             `;
 
             const btnVaiGioco = document.getElementById('btnVaiAlGioco');
             if (btnVaiGioco) {
                 btnVaiGioco.addEventListener('click', () => {
+                    // Questo commuta lo stato su Firebase, portando TUTTI (Master e giocatori) nella schermata di gioco
                     update(ref(database, 'stanze/' + stanzaId), { stato: 'gioco_attivo' });
                 });
             }
@@ -120,14 +121,17 @@ function aggiornaUIStanza(dati, stanzaId, linkStanza = "") {
             const haCreatoPG = dati.personaggi && dati.personaggi[mioNome] && dati.personaggi[mioNome].creato;
             
             if (haCreatoPG) {
+                // Se il giocatore ha creato il personaggio, vede la schermata di attesa pulita
                 document.getElementById('home-screen').style.display = 'block';
-                document.getElementById('home-screen').innerHTML = `<h2>Personaggio salvato!</h2><p>In attesa che l'avventura si avvii...</p>`;
+                document.getElementById('home-screen').innerHTML = `<h2>Personaggio salvato!</h2><p>In attesa che il Master avvii la sessione di gioco...</p>`;
             } else {
+                // Altrimenti compila la scheda
                 document.getElementById('creazione-personaggio-screen').style.display = 'block';
             }
         }
     }
     else if (dati.stato === 'gioco_attivo') {
+        // QUANDO SI ARRIVA QUI: Sia il Master che i giocatori entrano nella schermata di gioco (quella prima "nera")
         const giocoScreen = document.getElementById('gioco-screen');
         if (giocoScreen) {
             giocoScreen.style.display = 'block';
