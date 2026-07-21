@@ -142,11 +142,15 @@ document.getElementById('btnCreaAvventura').addEventListener('click', () => {
     const stanzaRef = ref(database, 'stanze/' + stanzaId);
     const linkStanza = window.location.href.split('?')[0] + "?stanza=" + stanzaId;
     
-    set(stanzaRef, {
+    // Creiamo la stanza partendo esplicitamente dallo stato 'attesa'
+    const datiIniziali = {
         nome: nomeAvventura,
         giocatori: { "Master": "Master" }, 
         stato: 'attesa'
-    }).then(() => {
+    };
+
+    set(stanzaRef, datiIniziali).then(() => {
+        isListening = true;
         onValue(stanzaRef, (snapshot) => {
             aggiornaUIStanza(snapshot.val(), stanzaId, linkStanza);
         });
