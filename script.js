@@ -130,6 +130,9 @@ document.getElementById('btnEntraStanza').addEventListener('click', () => {
 
     update(ref(database, 'stanze/' + stanzaIdDaUrl + '/giocatori'), { [mioNome]: "Giocatore" });
 
+    // ATTIVIAMO L'ASCOLTO DELLA CHAT QUI
+    avviaAscoltoChat(stanzaIdDaUrl);
+
     if (!isListening) {
         isListening = true;
         onValue(ref(database, 'stanze/' + stanzaIdDaUrl), (snapshot) => {
@@ -137,7 +140,6 @@ document.getElementById('btnEntraStanza').addEventListener('click', () => {
         });
     }
 });
-
 document.getElementById('btnInviaChat').addEventListener('click', () => {
     const msg = document.getElementById('msgMaster').value;
     if (msg.trim() === "") return;
@@ -262,15 +264,29 @@ document.getElementById('btnSalvaPG').addEventListener('click', () => {
     }).then(() => {
         alert("Personaggio salvato con successo!");
         
-        // 1. Nascondiamo la schermata di creazione
         document.getElementById('creazione-personaggio-screen').style.display = 'none';
         
-        // 2. Mostriamo la chat box e diamo un feedback visivo immediato
         const chatBox = document.getElementById('chat-box');
         chatBox.style.display = 'block';
-        chatBox.innerHTML = `<p style="color: #aaa; font-style: italic;">In attesa di messaggi dal Master...</p>`;
+        
+        // ATTIVIAMO L'ASCOLTO DELLA CHAT ANCHE QUI
+        avviaAscoltoChat(stanzaIdDaUrl);
         
     }).catch((error) => {
         alert("Errore durante il salvataggio: " + error.message);
     });
 });
+// Funzione per mettere in ascolto continuo la chat della stanza
+function avviaAscoltoChat(stanzaId) {
+    if (!stanzaId) return;
+    const chatRef = ref(database, 'stanze/' + stanzaId + '/chat');
+    onValue(chatRef, (snapshot) => {
+        const chatDati = snapshot.val();
+        const chatBox = document.getElementById('chat-box');
+        if (chatDati && chatDati.ultimoMessaggio) {
+            chatBox.innerHTML = `<p><b>Master:</b> ${chatDati.ultimoMessaggio}</p>`;
+        } else {
+            chatBox.innerHTML = `<p style="color: #aaa; font-style: italic;">In attesa di messaggi dal Master...</p>`;
+        }
+    });
+}
