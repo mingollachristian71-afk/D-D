@@ -131,14 +131,22 @@ document.getElementById('btnCreaAvventura').addEventListener('click', () => {
         stato: 'attesa'
     };
 
+    // Scriviamo su Firebase e passiamo subito il link alla UI
     set(stanzaRef, datiIniziali).then(() => {
         isListening = true;
+        
+        // Mostriamo subito la schermata di attesa con il link generato
+        aggiornaUIStanza(datiIniziali, stanzaId, linkStanza);
+
+        // Attiviamo il listener in tempo reale per gli altri cambiamenti
         onValue(stanzaRef, (snapshot) => {
-            aggiornaUIStanza(snapshot.val(), stanzaId, linkStanza);
+            const datiAggiornati = snapshot.val();
+            if (datiAggiornati) {
+                aggiornaUIStanza(datiAggiornati, stanzaId, linkStanza);
+            }
         });
     });
 });
-
 function controllaAccessoStanza() {
     document.getElementById('login-giocatore-screen').style.display = 'block';
 }
