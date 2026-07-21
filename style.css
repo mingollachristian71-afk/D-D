@@ -79,3 +79,36 @@ select.stat {
     border: 1px solid #555;
     padding: 5px;
 }
+/* Stile per il pulsante informativo */
+.btn-info {
+    background: none;
+    border: none;
+    font-size: 18px;
+    cursor: pointer;
+    padding: 0 5px;
+    vertical-align: middle;
+}
+
+/* Stile per il riquadro della descrizione a comparsa */
+.info-box {
+    background-color: #222;
+    border: 1px solid #ff9800;
+    border-radius: 5px;
+    padding: 12px;
+    margin: 10px auto;
+    max-width: 90%;
+    text-align: left;
+    font-size: 14px;
+    color: #ddd;
+    box-sizing: border-box;
+}
+
+.info-box h4 {
+    margin: 0 0 8px 0;
+    color: #ff9800;
+}
+
+.info-box p {
+    margin: 6px 0;
+    line-height: 1.4;
+}
