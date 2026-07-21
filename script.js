@@ -23,43 +23,46 @@ const params = new URLSearchParams(window.location.search);
 const stanzaIdDaUrl = params.get('stanza');
 
 function nascondiTutteSchermate() {
-    const schermate = ['home-screen', 'creazione-personaggio-screen', 'login-giocatore-screen', 'gioco-screen'];
+    const schermate = ['home-screen', 'creazione-personaggio-screen', 'login-giocatore-screen', 'gioco-screen', 'disclaimer-screen'];
     schermate.forEach(id => {
         const el = document.getElementById(id);
         if (el) el.style.display = 'none';
     });
 }
 
-// Gestione del pulsante del disclaimer
+// Gestione pulita del pulsante del disclaimer
 const btnChiudi = document.getElementById('btnChiudiDisclaimer');
 if (btnChiudi) {
     btnChiudi.addEventListener('click', () => {
         const disclaimer = document.getElementById('disclaimer-screen');
         if (disclaimer) disclaimer.style.display = 'none';
 
-        if (stanzaIdDaUrl && mioNome !== "") {
-            isListening = true;
-            onValue(ref(database, 'stanze/' + stanzaIdDaUrl), (snapshot) => {
-                aggiornaUIStanza(snapshot.val(), stanzaIdDaUrl);
-            });
-        } else if (stanzaIdDaUrl) {
-            const loginScr = document.getElementById('login-giocatore-screen');
-            if (loginScr) loginScr.style.display = 'block';
+        // Se c'è una stanza nell'URL
+        if (stanzaIdDaUrl) {
+            // Se sei il Master o hai già un nome valido e registrato nella stanza, ascolti direttamente
+            if (mioNome === "Master") {
+                isListening = true;
+                onValue(ref(database, 'stanze/' + stanzaIdDaUrl), (snapshot) => {
+                    aggiornaUIStanza(snapshot.val(), stanzaIdDaUrl);
+                });
+            } else {
+                // Altrimenti, OBBLIGHIAMO il giocatore a inserire il nome
+                document.getElementById('login-giocatore-screen').style.display = 'block';
+            }
         } else {
-            const homeScr = document.getElementById('home-screen');
-            if (homeScr) homeScr.style.display = 'block';
+            // Se non c'è la stanza, apriamo la home normale (per creare l'avventura)
+            document.getElementById('home-screen').style.display = 'block';
         }
     });
 }
 
-// Avvio automatico se il nome è già salvato e c'è una stanza
-if (mioNome !== "" && stanzaIdDaUrl) {
+// Se la pagina viene ricaricata ed è il Master con la stanza attiva
+if (mioNome === "Master" && stanzaIdDaUrl) {
     isListening = true;
     onValue(ref(database, 'stanze/' + stanzaIdDaUrl), (snapshot) => {
         aggiornaUIStanza(snapshot.val(), stanzaIdDaUrl);
     });
 }
-
 function aggiornaUIStanza(dati, stanzaId, linkStanza = "") {
     if (!dati || !dati.giocatori) return;
     
