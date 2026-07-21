@@ -9,6 +9,7 @@ function nascondiTutteSchermate() {
     document.getElementById('chat-box').style.display = 'none';
     document.getElementById('login-giocatore-screen').style.display = 'none';
 }
+
 const firebaseConfig = {
   apiKey: "AIzaSyAZq5MjHGMUJm6r_zZWvToPl76vbwVVJnU",
   authDomain: "dnd-toolset-ac6d4.firebaseapp.com",
@@ -29,12 +30,30 @@ let mioNome = localStorage.getItem('mioNomeDnd') || "";
 const params = new URLSearchParams(window.location.search);
 const stanzaIdDaUrl = params.get('stanza');
 
+// Funzione centralizzata e sicura per ascoltare la chat
+function avviaAscoltoChat(stanzaId) {
+    if (!stanzaId) return;
+    const chatRef = ref(database, 'stanze/' + stanzaId + '/chat');
+    onValue(chatRef, (snapshot) => {
+        const chatDati = snapshot.val();
+        const chatBox = document.getElementById('chat-box');
+        if (chatBox) {
+            if (chatDati && chatDati.ultimoMessaggio) {
+                chatBox.innerHTML = `<p><b>Master:</b> ${chatDati.ultimoMessaggio}</p>`;
+            } else {
+                chatBox.innerHTML = `<p style="color: #aaa; font-style: italic;">In attesa di messaggi dal Master...</p>`;
+            }
+        }
+    });
+}
+
 // Avvio automatico se il nome è già salvato
 if (mioNome !== "" && stanzaIdDaUrl) {
     isListening = true;
     onValue(ref(database, 'stanze/' + stanzaIdDaUrl), (snapshot) => {
         aggiornaUIStanza(snapshot.val(), stanzaIdDaUrl);
     });
+    avviaAscoltoChat(stanzaIdDaUrl);
 }
 
 document.getElementById('btnChiudiDisclaimer').addEventListener('click', () => {
@@ -86,8 +105,15 @@ function aggiornaUIStanza(dati, stanzaId, linkStanza = "") {
             document.getElementById('msgMaster').style.display = 'block';
             document.getElementById('btnInviaChat').style.display = 'block';
         } else {
-            document.getElementById('creazione-personaggio-screen').style.display = 'block';
-            document.getElementById('chat-box').style.display = 'block';
+            // Controlliamo se il giocatore ha già salvato il personaggio
+            const haCreatoPG = dati.personaggi && dati.personaggi[mioNome] && dati.personaggi[mioNome].creato;
+            
+            if (haCreatoPG) {
+                document.getElementById('chat-box').style.display = 'block';
+                avviaAscoltoChat(stanzaId);
+            } else {
+                document.getElementById('creazione-personaggio-screen').style.display = 'block';
+            }
         }
     }
 }
@@ -130,7 +156,6 @@ document.getElementById('btnEntraStanza').addEventListener('click', () => {
 
     update(ref(database, 'stanze/' + stanzaIdDaUrl + '/giocatori'), { [mioNome]: "Giocatore" });
 
-    // ATTIVIAMO L'ASCOLTO DELLA CHAT QUI
     avviaAscoltoChat(stanzaIdDaUrl);
 
     if (!isListening) {
@@ -140,18 +165,12 @@ document.getElementById('btnEntraStanza').addEventListener('click', () => {
         });
     }
 });
+
 document.getElementById('btnInviaChat').addEventListener('click', () => {
     const msg = document.getElementById('msgMaster').value;
     if (msg.trim() === "") return;
     update(ref(database, 'stanze/' + stanzaIdDaUrl + '/chat'), { ultimoMessaggio: msg });
     document.getElementById('msgMaster').value = "";
-});
-
-onValue(ref(database, 'stanze/' + stanzaIdDaUrl + '/chat'), (snapshot) => {
-    const chatDati = snapshot.val();
-    if (chatDati) {
-        document.getElementById('chat-box').innerHTML = `<p><b>Master:</b> ${chatDati.ultimoMessaggio}</p>`;
-    }
 });
 
 document.querySelectorAll('.stat').forEach(select => {
@@ -165,6 +184,7 @@ document.querySelectorAll('.stat').forEach(select => {
         });
     });
 });
+
 // Database dei testi dettagliati per Classi e Razze
 const descrizioniClassi = {
     "Barbaro": "<h4>Barbaro</h4><p><b>Caratteristiche chiave:</b> Forza e Costituzione.</p><p><b>Vantaggi:</b> L'<b>Ira</b> conferisce vantaggi nei tiri di Forza, bonus ai danni e soprattutto <b>dimezza i danni fisici</b> subiti (contundenti, perforanti e taglienti). Dispone inoltre della <i>Difesa Senza Armatura</i> e dell'<i>Attacco Irruento</i>.</p>",
@@ -195,7 +215,7 @@ const descrizioniRazze = {
     "Tiefling": "<h4>Tiefling</h4><p><b>Bonus:</b> +2 Carisma, +1 Intelligenza.</p><p><b>Vantaggi:</b> <i>Scurovisore</i>, <i>Resistenza ai danni da Fuoco</i> e l'eredità infernale per lanciare incantesimi innati come Thaumaturgy e Hellish Rebuke.</p>"
 };
 
-// Funzionamento del pulsante info Classe
+// Pulsanti info Classe e Razza
 document.getElementById('btnInfoClasse').addEventListener('click', () => {
     const classeSelezionata = document.getElementById('classePG').value;
     const box = document.getElementById('infoClasseBox');
@@ -212,7 +232,6 @@ document.getElementById('btnInfoClasse').addEventListener('click', () => {
     }
 });
 
-// Funzionamento del pulsante info Razza
 document.getElementById('btnInfoRazza').addEventListener('click', () => {
     const razzaSelezionata = document.getElementById('razzaPG').value;
     const box = document.getElementById('infoRazzaBox');
@@ -228,7 +247,7 @@ document.getElementById('btnInfoRazza').addEventListener('click', () => {
         box.style.display = box.style.display === 'none' ? 'block' : 'none';
     }
 });
-// Salvataggio del Personaggio da parte del Giocatore
+
 // Salvataggio del Personaggio da parte del Giocatore
 document.getElementById('btnSalvaPG').addEventListener('click', () => {
     const nomePG = document.getElementById('nomePG').value;
@@ -269,24 +288,9 @@ document.getElementById('btnSalvaPG').addEventListener('click', () => {
         const chatBox = document.getElementById('chat-box');
         chatBox.style.display = 'block';
         
-        // ATTIVIAMO L'ASCOLTO DELLA CHAT ANCHE QUI
         avviaAscoltoChat(stanzaIdDaUrl);
         
     }).catch((error) => {
         alert("Errore durante il salvataggio: " + error.message);
     });
 });
-// Funzione per mettere in ascolto continuo la chat della stanza
-function avviaAscoltoChat(stanzaId) {
-    if (!stanzaId) return;
-    const chatRef = ref(database, 'stanze/' + stanzaId + '/chat');
-    onValue(chatRef, (snapshot) => {
-        const chatDati = snapshot.val();
-        const chatBox = document.getElementById('chat-box');
-        if (chatDati && chatDati.ultimoMessaggio) {
-            chatBox.innerHTML = `<p><b>Master:</b> ${chatDati.ultimoMessaggio}</p>`;
-        } else {
-            chatBox.innerHTML = `<p style="color: #aaa; font-style: italic;">In attesa di messaggi dal Master...</p>`;
-        }
-    });
-}
