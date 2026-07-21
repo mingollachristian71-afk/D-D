@@ -55,7 +55,7 @@ function aggiornaUIStanza(dati, stanzaId, linkStanza = "") {
     // 1. Reset visibilità
     nascondiTutteSchermate();
 
-    // 2. Logica Stato "Attesa"
+    // 2. Logica Stato "Attesa" (Mostra link e lista giocatori con il pulsante AVANZARE del master)
     if (dati.stato === 'attesa') {
         document.getElementById('home-screen').style.display = 'block';
         const lista = Object.entries(dati.giocatori).map(([nome, ruolo]) => {
@@ -69,18 +69,42 @@ function aggiornaUIStanza(dati, stanzaId, linkStanza = "") {
             ${linkStanza ? `<p>Link: <b>${linkStanza}</b></p>` : ""}
             <h3>Giocatori presenti:</h3>
             <ul>${lista}</ul>
-            <p>Stato: ${dati.stato}</p>
+            <p>Stato in attesa dei giocatori...</p>
             ${btnAvanzare}
         `;
 
         const btnAvanza = document.getElementById('btnAvanzaGioco');
         if (btnAvanza) {
             btnAvanza.addEventListener('click', () => {
-                // Passa direttamente allo stato di gioco attivo (schermata vuota)
-                update(ref(database, 'stanze/' + stanzaId), { stato: 'gioco_attivo' });
+                // Passa allo stato di creazione personaggi quando il Master preme Avanzare
+                update(ref(database, 'stanze/' + stanzaId), { stato: 'creazione' });
             });
         }
     } 
+    // 3. Logica Stato "Creazione" (I giocatori compilano la scheda)
+    else if (dati.stato === 'creazione') {
+        if (isMaster) {
+            document.getElementById('home-screen').style.display = 'block';
+            document.getElementById('home-screen').innerHTML = `<h1>${dati.nome}</h1><p>Fase di creazione personaggio in corso per i giocatori...</p>`;
+        } else {
+            const haCreatoPG = dati.personaggi && dati.personaggi[mioNome] && dati.personaggi[mioNome].creato;
+            
+            if (haCreatoPG) {
+                document.getElementById('home-screen').style.display = 'block';
+                document.getElementById('home-screen').innerHTML = `<h2>Personaggio salvato!</h2><p>In attesa che l'avventura si avvii...</p>`;
+            } else {
+                document.getElementById('creazione-personaggio-screen').style.display = 'block';
+            }
+        }
+    }
+    // 4. Logica Stato "Gioco Attivo" (La schermata vuota)
+    else if (dati.stato === 'gioco_attivo') {
+        const giocoScreen = document.getElementById('gioco-screen');
+        if (giocoScreen) {
+            giocoScreen.style.display = 'block';
+        }
+    }
+}
     // 3. Logica Stato "Creazione"
     else if (dati.stato === 'creazione') {
         if (isMaster) {
