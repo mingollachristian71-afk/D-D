@@ -7,6 +7,8 @@ function nascondiTutteSchermate() {
     document.getElementById('master-chat-screen').style.display = 'none';
     document.getElementById('creazione-personaggio-screen').style.display = 'none';
     document.getElementById('login-giocatore-screen').style.display = 'none';
+    const giocoScreen = document.getElementById('gioco-screen');
+    if (giocoScreen) giocoScreen.style.display = 'none';
 }
 
 const firebaseConfig = {
@@ -75,6 +77,7 @@ function aggiornaUIStanza(dati, stanzaId, linkStanza = "") {
         const btnAvanza = document.getElementById('btnAvanzaGioco');
         if (btnAvanza) {
             btnAvanza.addEventListener('click', () => {
+                // Passa allo stato di creazione personaggi
                 update(ref(database, 'stanze/' + stanzaId), { stato: 'creazione' });
             });
         }
@@ -83,16 +86,35 @@ function aggiornaUIStanza(dati, stanzaId, linkStanza = "") {
     else if (dati.stato === 'creazione') {
         if (isMaster) {
             document.getElementById('master-chat-screen').style.display = 'block';
+            
+            // Aggiungiamo un pulsante temporaneo nella schermata del master per passare alla schermata nera di gioco
+            let boxMaster = document.getElementById('master-chat-screen');
+            if (!document.getElementById('btnAvviaPartitaFinale')) {
+                const btnAvviaPartita = document.createElement('button');
+                btnAvviaPartita.id = 'btnAvviaPartitaFinale';
+                btnAvviaPartita.innerText = "AVVIA AVVENTURA (Schermata Vuota)";
+                btnAvviaPartita.style.backgroundColor = "red";
+                btnAvviaPartita.addEventListener('click', () => {
+                    update(ref(database, 'stanze/' + stanzaId), { stato: 'gioco_attivo' });
+                });
+                boxMaster.appendChild(btnAvviaPartita);
+            }
         } else {
             const haCreatoPG = dati.personaggi && dati.personaggi[mioNome] && dati.personaggi[mioNome].creato;
             
             if (haCreatoPG) {
-                // Schermata di attesa pulita senza chat
                 document.getElementById('home-screen').style.display = 'block';
                 document.getElementById('home-screen').innerHTML = `<h2>Personaggio salvato!</h2><p>In attesa che il Master avvii l'avventura...</p>`;
             } else {
                 document.getElementById('creazione-personaggio-screen').style.display = 'block';
             }
+        }
+    }
+    // 4. Logica Stato "Gioco Attivo" (Schermata nera vuota per tutti)
+    else if (dati.stato === 'gioco_attivo') {
+        const giocoScreen = document.getElementById('gioco-screen');
+        if (giocoScreen) {
+            giocoScreen.style.display = 'block';
         }
     }
 }
