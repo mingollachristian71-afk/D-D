@@ -4,7 +4,6 @@ import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.16.0/firebas
 
 function nascondiTutteSchermate() {
     document.getElementById('home-screen').style.display = 'none';
-    document.getElementById('master-chat-screen').style.display = 'none';
     document.getElementById('creazione-personaggio-screen').style.display = 'none';
     document.getElementById('login-giocatore-screen').style.display = 'none';
     const giocoScreen = document.getElementById('gioco-screen');
@@ -77,40 +76,28 @@ function aggiornaUIStanza(dati, stanzaId, linkStanza = "") {
         const btnAvanza = document.getElementById('btnAvanzaGioco');
         if (btnAvanza) {
             btnAvanza.addEventListener('click', () => {
-                // Passa allo stato di creazione personaggi
-                update(ref(database, 'stanze/' + stanzaId), { stato: 'creazione' });
+                // Passa direttamente allo stato di gioco attivo (schermata vuota)
+                update(ref(database, 'stanze/' + stanzaId), { stato: 'gioco_attivo' });
             });
         }
     } 
     // 3. Logica Stato "Creazione"
     else if (dati.stato === 'creazione') {
         if (isMaster) {
-            document.getElementById('master-chat-screen').style.display = 'block';
-            
-            // Aggiungiamo un pulsante temporaneo nella schermata del master per passare alla schermata nera di gioco
-            let boxMaster = document.getElementById('master-chat-screen');
-            if (!document.getElementById('btnAvviaPartitaFinale')) {
-                const btnAvviaPartita = document.createElement('button');
-                btnAvviaPartita.id = 'btnAvviaPartitaFinale';
-                btnAvviaPartita.innerText = "AVVIA AVVENTURA (Schermata Vuota)";
-                btnAvviaPartita.style.backgroundColor = "red";
-                btnAvviaPartita.addEventListener('click', () => {
-                    update(ref(database, 'stanze/' + stanzaId), { stato: 'gioco_attivo' });
-                });
-                boxMaster.appendChild(btnAvviaPartita);
-            }
+            document.getElementById('home-screen').style.display = 'block';
+            document.getElementById('home-screen').innerHTML = `<h1>${dati.nome}</h1><p>Fase di creazione personaggio in corso per i giocatori...</p>`;
         } else {
             const haCreatoPG = dati.personaggi && dati.personaggi[mioNome] && dati.personaggi[mioNome].creato;
             
             if (haCreatoPG) {
                 document.getElementById('home-screen').style.display = 'block';
-                document.getElementById('home-screen').innerHTML = `<h2>Personaggio salvato!</h2><p>In attesa che il Master avvii l'avventura...</p>`;
+                document.getElementById('home-screen').innerHTML = `<h2>Personaggio salvato!</h2><p>In attesa che l'avventura si avvii...</p>`;
             } else {
                 document.getElementById('creazione-personaggio-screen').style.display = 'block';
             }
         }
     }
-    // 4. Logica Stato "Gioco Attivo" (Schermata nera vuota per tutti)
+    // 4. Logica Stato "Gioco Attivo" (Schermata vuota per tutti)
     else if (dati.stato === 'gioco_attivo') {
         const giocoScreen = document.getElementById('gioco-screen');
         if (giocoScreen) {
@@ -274,9 +261,8 @@ document.getElementById('btnSalvaPG').addEventListener('click', () => {
         creato: true
     }).then(() => {
         alert("Personaggio salvato con successo!");
-        document.getElementById('creazione-personaggio-screen').style.display = 'none';
-        document.getElementById('home-screen').style.display = 'block';
-        document.getElementById('home-screen').innerHTML = `<h2>Personaggio salvato!</h2><p>In attesa che il Master avvii l'avventura...</p>`;
+        // Una volta salvato il personaggio, passiamo direttamente allo stato di gioco attivo per tutti
+        update(ref(database, 'stanze/' + stanzaIdDaUrl), { stato: 'gioco_attivo' });
     }).catch((error) => {
         alert("Errore durante il salvataggio: " + error.message);
     });
