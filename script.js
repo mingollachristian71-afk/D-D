@@ -30,39 +30,40 @@ function nascondiTutteSchermate() {
     });
 }
 
-// Gestione pulita del pulsante del disclaimer
+// Gestione del pulsante del disclaimer
 const btnChiudi = document.getElementById('btnChiudiDisclaimer');
 if (btnChiudi) {
     btnChiudi.addEventListener('click', () => {
         const disclaimer = document.getElementById('disclaimer-screen');
         if (disclaimer) disclaimer.style.display = 'none';
 
-        // Se c'è una stanza nell'URL
         if (stanzaIdDaUrl) {
-            // Se sei il Master o hai già un nome valido e registrato nella stanza, ascolti direttamente
-            if (mioNome === "Master") {
+            // Se sei il Master oppure hai già inserito un nome da giocatore
+            if (mioNome === "Master" || mioNome !== "") {
                 isListening = true;
                 onValue(ref(database, 'stanze/' + stanzaIdDaUrl), (snapshot) => {
                     aggiornaUIStanza(snapshot.val(), stanzaIdDaUrl);
                 });
             } else {
-                // Altrimenti, OBBLIGHIAMO il giocatore a inserire il nome
-                document.getElementById('login-giocatore-screen').style.display = 'block';
+                // Altrimenti, se sei un nuovo giocatore, chiedi il nome
+                const loginScr = document.getElementById('login-giocatore-screen');
+                if (loginScr) loginScr.style.display = 'block';
             }
         } else {
-            // Se non c'è la stanza, apriamo la home normale (per creare l'avventura)
-            document.getElementById('home-screen').style.display = 'block';
+            const homeScr = document.getElementById('home-screen');
+            if (homeScr) homeScr.style.display = 'block';
         }
     });
 }
 
-// Se la pagina viene ricaricata ed è il Master con la stanza attiva
+// Se ricarichi la pagina ed è il Master
 if (mioNome === "Master" && stanzaIdDaUrl) {
     isListening = true;
     onValue(ref(database, 'stanze/' + stanzaIdDaUrl), (snapshot) => {
         aggiornaUIStanza(snapshot.val(), stanzaIdDaUrl);
     });
 }
+
 function aggiornaUIStanza(dati, stanzaId, linkStanza = "") {
     if (!dati || !dati.giocatori) return;
     
@@ -79,7 +80,7 @@ function aggiornaUIStanza(dati, stanzaId, linkStanza = "") {
 
         document.getElementById('home-screen').innerHTML = `
             <h1>${dati.nome}</h1>
-            ${linkStanza ? `<p>Link: <b>${linkStanza}</b></p>` : ""}
+            ${linkStanza ? `<p>Link d'invito: <b>${linkStanza}</b></p>` : ""}
             <h3>Giocatori presenti:</h3>
             <ul>${lista}</ul>
             <p>Stato in attesa dei giocatori...</p>
@@ -96,7 +97,25 @@ function aggiornaUIStanza(dati, stanzaId, linkStanza = "") {
     else if (dati.stato === 'creazione') {
         if (isMaster) {
             document.getElementById('home-screen').style.display = 'block';
-            document.getElementById('home-screen').innerHTML = `<h1>${dati.nome}</h1><p>Fase di creazione personaggio in corso per i giocatori...</p>`;
+            const lista = Object.entries(dati.giocatori).map(([nome, ruolo]) => {
+                return `<li>${ruolo === "Master" ? "Master" : nome} - ${dati.personaggi && dati.personaggi[nome] && dati.personaggi[nome].creato ? "✅ PG Creato" : "⏳ In creazione..."}</li>`;
+            }).join('');
+
+            document.getElementById('home-screen').innerHTML = `
+                <h1>${dati.nome}</h1>
+                ${linkStanza ? `<p>Link d'invito: <b>${linkStanza}</b></p>` : ""}
+                <h3>Giocatori e Stato Personaggi:</h3>
+                <ul>${lista}</ul>
+                <p>Fase di creazione personaggio in corso per i giocatori...</p>
+                <button id="btnVaiAlGioco">ENTRA NELLA SCHERMATA DI GIOCO</button>
+            `;
+
+            const btnVaiGioco = document.getElementById('btnVaiAlGioco');
+            if (btnVaiGioco) {
+                btnVaiGioco.addEventListener('click', () => {
+                    update(ref(database, 'stanze/' + stanzaId), { stato: 'gioco_attivo' });
+                });
+            }
         } else {
             const haCreatoPG = dati.personaggi && dati.personaggi[mioNome] && dati.personaggi[mioNome].creato;
             
@@ -134,14 +153,10 @@ document.getElementById('btnCreaAvventura').addEventListener('click', () => {
         stato: 'attesa'
     };
 
-    // Scriviamo su Firebase e passiamo subito il link alla UI
     set(stanzaRef, datiIniziali).then(() => {
         isListening = true;
-        
-        // Mostriamo subito la schermata di attesa con il link generato
         aggiornaUIStanza(datiIniziali, stanzaId, linkStanza);
 
-        // Attiviamo il listener in tempo reale per gli altri cambiamenti
         onValue(stanzaRef, (snapshot) => {
             const datiAggiornati = snapshot.val();
             if (datiAggiornati) {
@@ -150,6 +165,7 @@ document.getElementById('btnCreaAvventura').addEventListener('click', () => {
         });
     });
 });
+
 function controllaAccessoStanza() {
     document.getElementById('login-giocatore-screen').style.display = 'block';
 }
@@ -217,13 +233,11 @@ const descrizioniRazze = {
 document.getElementById('btnInfoClasse').addEventListener('click', () => {
     const classeSelezionata = document.getElementById('classePG').value;
     const box = document.getElementById('infoClasseBox');
-
     if (!classeSelezionata) {
         box.innerHTML = "<p>Seleziona prima una classe dalla tendina!</p>";
         box.style.display = 'block';
         return;
     }
-
     if (descrizioniClassi[classeSelezionata]) {
         box.innerHTML = descrizioniClassi[classeSelezionata];
         box.style.display = box.style.display === 'none' ? 'block' : 'none';
@@ -233,13 +247,11 @@ document.getElementById('btnInfoClasse').addEventListener('click', () => {
 document.getElementById('btnInfoRazza').addEventListener('click', () => {
     const razzaSelezionata = document.getElementById('razzaPG').value;
     const box = document.getElementById('infoRazzaBox');
-
     if (!razzaSelezionata) {
         box.innerHTML = "<p>Seleziona prima una razza dalla tendina!</p>";
         box.style.display = 'block';
         return;
     }
-
     if (descrizioniRazze[razzaSelezionata]) {
         box.innerHTML = descrizioniRazze[razzaSelezionata];
         box.style.display = box.style.display === 'none' ? 'block' : 'none';
