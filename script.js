@@ -6,7 +6,6 @@ function nascondiTutteSchermate() {
     document.getElementById('home-screen').style.display = 'none';
     document.getElementById('master-chat-screen').style.display = 'none';
     document.getElementById('creazione-personaggio-screen').style.display = 'none';
-    document.getElementById('chat-box').style.display = 'none';
     document.getElementById('login-giocatore-screen').style.display = 'none';
 }
 
@@ -30,30 +29,12 @@ let mioNome = localStorage.getItem('mioNomeDnd') || "";
 const params = new URLSearchParams(window.location.search);
 const stanzaIdDaUrl = params.get('stanza');
 
-// Funzione centralizzata e sicura per ascoltare la chat
-function avviaAscoltoChat(stanzaId) {
-    if (!stanzaId) return;
-    const chatRef = ref(database, 'stanze/' + stanzaId + '/chat');
-    onValue(chatRef, (snapshot) => {
-        const chatDati = snapshot.val();
-        const chatBox = document.getElementById('chat-box');
-        if (chatBox) {
-            if (chatDati && chatDati.ultimoMessaggio) {
-                chatBox.innerHTML = `<p><b>Master:</b> ${chatDati.ultimoMessaggio}</p>`;
-            } else {
-                chatBox.innerHTML = `<p style="color: #aaa; font-style: italic;">In attesa di messaggi dal Master...</p>`;
-            }
-        }
-    });
-}
-
 // Avvio automatico se il nome è già salvato
 if (mioNome !== "" && stanzaIdDaUrl) {
     isListening = true;
     onValue(ref(database, 'stanze/' + stanzaIdDaUrl), (snapshot) => {
         aggiornaUIStanza(snapshot.val(), stanzaIdDaUrl);
     });
-    avviaAscoltoChat(stanzaIdDaUrl);
 }
 
 document.getElementById('btnChiudiDisclaimer').addEventListener('click', () => {
@@ -102,15 +83,13 @@ function aggiornaUIStanza(dati, stanzaId, linkStanza = "") {
     else if (dati.stato === 'creazione') {
         if (isMaster) {
             document.getElementById('master-chat-screen').style.display = 'block';
-            document.getElementById('msgMaster').style.display = 'block';
-            document.getElementById('btnInviaChat').style.display = 'block';
         } else {
-            // Controlliamo se il giocatore ha già salvato il personaggio
             const haCreatoPG = dati.personaggi && dati.personaggi[mioNome] && dati.personaggi[mioNome].creato;
             
             if (haCreatoPG) {
-                document.getElementById('chat-box').style.display = 'block';
-                avviaAscoltoChat(stanzaId);
+                // Schermata di attesa pulita senza chat
+                document.getElementById('home-screen').style.display = 'block';
+                document.getElementById('home-screen').innerHTML = `<h2>Personaggio salvato!</h2><p>In attesa che il Master avvii l'avventura...</p>`;
             } else {
                 document.getElementById('creazione-personaggio-screen').style.display = 'block';
             }
@@ -156,21 +135,12 @@ document.getElementById('btnEntraStanza').addEventListener('click', () => {
 
     update(ref(database, 'stanze/' + stanzaIdDaUrl + '/giocatori'), { [mioNome]: "Giocatore" });
 
-    avviaAscoltoChat(stanzaIdDaUrl);
-
     if (!isListening) {
         isListening = true;
         onValue(ref(database, 'stanze/' + stanzaIdDaUrl), (snapshot) => {
             aggiornaUIStanza(snapshot.val(), stanzaIdDaUrl);
         });
     }
-});
-
-document.getElementById('btnInviaChat').addEventListener('click', () => {
-    const msg = document.getElementById('msgMaster').value;
-    if (msg.trim() === "") return;
-    update(ref(database, 'stanze/' + stanzaIdDaUrl + '/chat'), { ultimoMessaggio: msg });
-    document.getElementById('msgMaster').value = "";
 });
 
 document.querySelectorAll('.stat').forEach(select => {
@@ -282,14 +252,9 @@ document.getElementById('btnSalvaPG').addEventListener('click', () => {
         creato: true
     }).then(() => {
         alert("Personaggio salvato con successo!");
-        
         document.getElementById('creazione-personaggio-screen').style.display = 'none';
-        
-        const chatBox = document.getElementById('chat-box');
-        chatBox.style.display = 'block';
-        
-        avviaAscoltoChat(stanzaIdDaUrl);
-        
+        document.getElementById('home-screen').style.display = 'block';
+        document.getElementById('home-screen').innerHTML = `<h2>Personaggio salvato!</h2><p>In attesa che il Master avvii l'avventura...</p>`;
     }).catch((error) => {
         alert("Errore durante il salvataggio: " + error.message);
     });
