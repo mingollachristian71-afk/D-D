@@ -40,9 +40,11 @@ if (mioNome !== "" && stanzaIdDaUrl) {
 
 document.getElementById('btnChiudiDisclaimer').addEventListener('click', () => {
     document.getElementById('disclaimer-screen').style.display = 'none';
+    
     if (stanzaIdDaUrl) {
         controllaAccessoStanza(); 
     } else {
+        // Forza l'apertura della home in modo sicuro
         document.getElementById('home-screen').style.display = 'block';
     }
 });
