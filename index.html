@@ -41,15 +41,53 @@
 
     <div id="chat-box" style="display: none;"></div>
 
+    <!-- Creazione Personaggio (Giocatori) -->
     <div id="creazione-personaggio-screen" class="screen" style="display: none;">
         <h1>Crea il tuo Personaggio</h1>
         <input type="text" id="nomePG" placeholder="Nome Personaggio">
         <textarea id="descrizionePG" placeholder="Descrizione Fisica"></textarea>
         <input type="text" id="obiettivoPG" placeholder="Obiettivo">
-        <input type="text" id="classePG" placeholder="Classe">
-        <input type="text" id="razzaPG" placeholder="Razza">
+        
+        <!-- Classe trasformata in tendina -->
+        <div>
+            Classe: 
+            <select id="classePG" class="stat">
+                <option value="">Seleziona classe...</option>
+                <option value="Barbaro">Barbaro</option>
+                <option value="Bardo">Bardo</option>
+                <option value="Chierico">Chierico</option>
+                <option value="Druido">Druido</option>
+                <option value="Guerriero">Guerriero</option>
+                <option value="Ladro">Ladro</option>
+                <option value="Mago">Mago</option>
+                <option value="Monaco">Monaco</option>
+                <option value="Paladino">Paladino</option>
+                <option value="Ranger">Ranger</option>
+                <option value="Stregone">Stregone</option>
+                <option value="Warlock">Warlock</option>
+            </select>
+        </div>
 
-        <h3>Caratteristiche</h3>
+        <!-- Razza trasformata in tendina -->
+        <div>
+            Razza: 
+            <select id="razzaPG" class="stat">
+                <option value="">Seleziona razza...</option>
+                <option value="Nano">Nano</option>
+                <option value="Elfo">Elfo</option>
+                <option value="Halfling">Halfling</option>
+                <option value="Umano">Umano</option>
+                <option value="Dragonide Blu">Dragonide Blu</option>
+                <option value="Dragonide Rosso">Dragonide Rosso</option>
+                <option value="Dragonide Bianco">Dragonide Bianco</option>
+                <option value="Gnomo">Gnomo</option>
+                <option value="Mezzelfo">Mezzelfo</option>
+                <option value="Mezzorco">Mezzorco</option>
+                <option value="Tiefling">Tiefling</option>
+            </select>
+        </div>
+
+        <h3>Caratteristiche (Scegli i valori)</h3>
         <div id="caratteristiche-container">
             <div>
                 Forza: <select class="stat"><option value="">-</option><option>15</option><option>14</option><option>13</option><option>12</option><option>10</option><option>8</option></select><br>
@@ -62,6 +100,7 @@
                 Carisma: <select class="stat"><option value="">-</option><option>15</option><option>14</option><option>13</option><option>12</option><option>10</option><option>8</option></select>
             </div>
         </div>
+        <br>
         <button id="btnSalvaPG">Salva Personaggio</button>
     </div>
 
