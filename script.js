@@ -1,7 +1,17 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js";
 import { getDatabase, ref, set, get, onValue, update, child } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-database.js";
 import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-analytics.js";
+// 1. Importa la funzione dal file rules.js
+import { apriSchermataRegole } from './rules.js';
 
+// 2. Collega il pulsante HTML (assicurati che il tuo bottone nel HTML abbia id="btn-regole")
+const btnRegole = document.getElementById('btn-regole');
+
+if (btnRegole) {
+    btnRegole.addEventListener('click', () => {
+        apriSchermataRegole();
+    });
+}
 const firebaseConfig = {
   apiKey: "AIzaSyAZq5MjHGMUJm6r_zZWvToPl76vbwVVJnU",
   authDomain: "dnd-toolset-ac6d4.firebaseapp.com",
