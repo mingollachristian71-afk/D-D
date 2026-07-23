@@ -1,9 +1,25 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js";
 import { getDatabase, ref, set, get, onValue, update, child } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-database.js";
 import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-analytics.js";
-// 1. Importa la funzione dal file rules.js
 import { apriSchermataRegole } from './rules.js';
+import { apriSchermataAbilita } from './abilities.js';
 
+// Esempio sul tuo pulsante abilità (assicurati di avere id="btn-abilita" nel tuo HTML)
+const btnAbilita = document.getElementById('btn-abilita');
+
+if (btnAbilita) {
+    btnAbilita.addEventListener('click', () => {
+        const isMaster = (mioNome === "Master");
+        let classeEroe = "";
+        let razzaEroe = "";
+
+        // Se non è il master, recuperiamo i dati del suo personaggio salvati in precedenza
+        // (supponendo che tu abbia accesso all'oggetto dei dati della stanza o del personaggio)
+        // Ad esempio leggendo dai dati salvati o da una variabile globale del personaggio.
+        
+        apriSchermataAbilita(isMaster, classeEroe, razzaEroe);
+    });
+}
 // 2. Collega il pulsante HTML (assicurati che il tuo bottone nel HTML abbia id="btn-regole")
 const btnRegole = document.getElementById('btn-regole');
 
