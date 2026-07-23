@@ -43,7 +43,6 @@ export function apriSchermataSchedaEroe(database, stanzaId, mioNome) {
     document.getElementById('titolo-mia-scheda').textContent = 'Scheda Personaggio: ' + mioNome;
     contenuto.innerHTML = '<p>Caricamento della tua scheda in corso...</p>';
 
-    // Prende i dati del singolo eroe da Firebase
     get(child(ref(database), 'stanze/' + stanzaId + '/personaggi/' + mioNome)).then((snapshot) => {
         const dati = snapshot.val();
 
@@ -56,7 +55,7 @@ export function apriSchermataSchedaEroe(database, stanzaId, mioNome) {
         const razza = dati.razza || "Non specificata";
         const descrizione = dati.descrizione || "Nessuna descrizione.";
         const obiettivo = dati.obiettivo || "Nessun obiettivo.";
-        const caratteristiche = dati.caratteristiche || {};
+        const stats = dati.statistiche || {};
 
         let html = `
             <div style="background: #2a2a2a; border: 1px solid #444; border-radius: 8px; padding: 20px;">
@@ -69,12 +68,19 @@ export function apriSchermataSchedaEroe(database, stanzaId, mioNome) {
                     <div style="display: flex; flex-wrap: wrap; gap: 15px;">
         `;
 
-        if (Object.keys(caratteristiche).length > 0) {
-            for (const [car, val] of Object.entries(caratteristiche)) {
+        const listaCaratteristiche = ['forza', 'destrezza', 'costituzione', 'intelligenza', 'saggezza', 'carisma'];
+        let trovate = false;
+
+        listaCaratteristiche.forEach(car => {
+            const val = stats[car];
+            if (val !== undefined && val !== "") {
+                trovate = true;
                 const mod = calcolaModificatore(val);
-                html += `<div style="background: #222; padding: 8px 12px; border-radius: 4px; border: 1px solid #555; font-size: 16px;"><b>${car}:</b> ${val} <span style="color: #ffcc00;">(${mod})</span></div>`;
+                html += `<div style="background: #222; padding: 8px 12px; border-radius: 4px; border: 1px solid #555; font-size: 16px;"><b>${car.toUpperCase()}:</b> ${val} <span style="color: #ffcc00;">(${mod})</span></div>`;
             }
-        } else {
+        });
+
+        if (!trovate) {
             html += `<span style="color: #888;">Nessuna caratteristica registrata.</span>`;
         }
 
