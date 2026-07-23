@@ -5,6 +5,12 @@ import { apriSchermataRegole } from './rules.js';
 import { apriSchermataAbilita } from './abilities.js';
 import { apriSchermataEnciclopedia } from './encyclopedia.js';
 
+const btnEnciclopedia = document.getElementById('btn-enciclopedia');
+if (btnEnciclopedia) {
+    btnEnciclopedia.addEventListener('click', () => {
+        apriSchermataEnciclopedia();
+    });
+}
 // Esempio sul tuo pulsante abilità (assicurati di avere id="btn-abilita" nel tuo HTML)
 const btnAbilita = document.getElementById('btn-abilita');
 
