@@ -8,6 +8,8 @@ import { apriSchermataBestiario } from './bestiario.js';
 import { apriSchermataAppunti, raccogliESalvaAppunti } from './appunti.js';
 import { apriSchermataOggettiMaster } from './oggetti-master.js';
 import { apriSchermataInventarioEroe } from './inventario-eroe.js';
+import { apriSchermataEroiMaster } from './eroi-master.js';
+import { apriSchermataSchedaEroe } from './scheda-eroe.js';
 
 // Funzione per collegare i pulsanti quando la schermata di gioco è attiva
 function inizializzaPulsantiGioco() {
@@ -48,29 +50,48 @@ function inizializzaPulsantiGioco() {
         };
     }
 
-    // --- NUOVI PULSANTI OGGETTI / INVENTARIO ---
+    // --- PULSANTI OGGETTI / INVENTARIO ---
     const btnOggettiMaster = document.getElementById('btn-oggetti-master');
     const btnInventarioEroe = document.getElementById('btn-inventario-eroe');
 
+    // --- NUOVI PULSANTI EROI / SCHEDA PERSONAGGIO ---
+    const btnEroiMaster = document.getElementById('btn-eroi-master');
+    const btnSchedaEroe = document.getElementById('btn-scheda-eroe');
+
     if (mioNome === "Master") {
         if (btnOggettiMaster) {
-            btnOggettiMaster.style.display = 'inline-block'; // Visibile solo al Master
+            btnOggettiMaster.style.display = 'inline-block';
             btnOggettiMaster.onclick = () => apriSchermataOggettiMaster();
         }
         if (btnInventarioEroe) {
             btnInventarioEroe.style.display = 'none';
+        }
+
+        if (btnEroiMaster) {
+            btnEroiMaster.style.display = 'inline-block';
+            btnEroiMaster.onclick = () => apriSchermataEroiMaster(database, stanzaIdDaUrl);
+        }
+        if (btnSchedaEroe) {
+            btnSchedaEroe.style.display = 'none';
         }
     } else {
         if (btnOggettiMaster) {
             btnOggettiMaster.style.display = 'none';
         }
         if (btnInventarioEroe) {
-            btnInventarioEroe.style.display = 'inline-block'; // Visibile solo agli Eroi
+            btnInventarioEroe.style.display = 'inline-block';
             btnInventarioEroe.onclick = () => apriSchermataInventarioEroe(mioNome);
+        }
+
+        if (btnEroiMaster) {
+            btnEroiMaster.style.display = 'none';
+        }
+        if (btnSchedaEroe) {
+            btnSchedaEroe.style.display = 'inline-block';
+            btnSchedaEroe.onclick = () => apriSchermataSchedaEroe(database, stanzaIdDaUrl, mioNome);
         }
     }
 }
-
 const firebaseConfig = {
     apiKey: "AIzaSyAZq5MjHGMUJm6r_zZWvToPl76vbwVVJnU",
     authDomain: "dnd-toolset-ac6d4.firebaseapp.com",
