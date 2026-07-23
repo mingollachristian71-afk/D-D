@@ -5,11 +5,10 @@ import { apriSchermataRegole } from './rules.js';
 import { apriSchermataAbilita } from './abilities.js';
 import { apriSchermataEnciclopedia } from './encyclopedia.js';
 
-// Funzione per collegare i pulsanti della schermata di gioco una volta che sono visibili
+// Funzione per collegare i pulsanti quando la schermata di gioco è attiva
 function inizializzaPulsantiGioco() {
     const btnEnciclopedia = document.getElementById('btn-enciclopedia');
     if (btnEnciclopedia) {
-        // Rimuoviamo eventuali doppi listener clonando il bottone o controllando
         btnEnciclopedia.onclick = () => {
             apriSchermataEnciclopedia();
         };
@@ -30,15 +29,16 @@ function inizializzaPulsantiGioco() {
         };
     }
 }
+
 const firebaseConfig = {
-  apiKey: "AIzaSyAZq5MjHGMUJm6r_zZWvToPl76vbwVVJnU",
-  authDomain: "dnd-toolset-ac6d4.firebaseapp.com",
-  databaseURL: "https://dnd-toolset-ac6d4-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "dnd-toolset-ac6d4",
-  storageBucket: "dnd-toolset-ac6d4.firebasestorage.app",
-  messagingSenderId: "647425557017",
-  appId: "1:647425557017:web:17b1e903ef0e9e60e3e088",
-  measurementId: "G-1F0K331B7Z"
+    apiKey: "AIzaSyAZq5MjHGMUJm6r_zZWvToPl76vbwVVJnU",
+    authDomain: "dnd-toolset-ac6d4.firebaseapp.com",
+    databaseURL: "https://dnd-toolset-ac6d4-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "dnd-toolset-ac6d4",
+    storageBucket: "dnd-toolset-ac6d4.firebasestorage.app",
+    messagingSenderId: "647425557017",
+    appId: "1:647425557017:web:17b1e903ef0e9e60e3e088",
+    measurementId: "G-1F0K331B7Z"
 };
 
 const app = initializeApp(firebaseConfig);
@@ -66,14 +66,12 @@ if (btnChiudi) {
         if (disclaimer) disclaimer.style.display = 'none';
 
         if (stanzaIdDaUrl) {
-            // Se sei il Master oppure hai già inserito un nome da giocatore
             if (mioNome === "Master" || mioNome !== "") {
                 isListening = true;
                 onValue(ref(database, 'stanze/' + stanzaIdDaUrl), (snapshot) => {
                     aggiornaUIStanza(snapshot.val(), stanzaIdDaUrl);
                 });
             } else {
-                // Altrimenti, se sei un nuovo giocatore, chiedi il nome
                 const loginScr = document.getElementById('login-giocatore-screen');
                 if (loginScr) loginScr.style.display = 'block';
             }
@@ -84,7 +82,6 @@ if (btnChiudi) {
     });
 }
 
-// Se ricarichi la pagina ed è il Master
 if (mioNome === "Master" && stanzaIdDaUrl) {
     isListening = true;
     onValue(ref(database, 'stanze/' + stanzaIdDaUrl), (snapshot) => {
@@ -141,7 +138,6 @@ function aggiornaUIStanza(dati, stanzaId, linkStanza = "") {
             const btnVaiGioco = document.getElementById('btnVaiAlGioco');
             if (btnVaiGioco) {
                 btnVaiGioco.addEventListener('click', () => {
-                    // Questo commuta lo stato su Firebase, portando TUTTI (Master e giocatori) nella schermata di gioco
                     update(ref(database, 'stanze/' + stanzaId), { stato: 'gioco_attivo' });
                 });
             }
@@ -149,20 +145,18 @@ function aggiornaUIStanza(dati, stanzaId, linkStanza = "") {
             const haCreatoPG = dati.personaggi && dati.personaggi[mioNome] && dati.personaggi[mioNome].creato;
             
             if (haCreatoPG) {
-                // Se il giocatore ha creato il personaggio, vede la schermata di attesa pulita
                 document.getElementById('home-screen').style.display = 'block';
                 document.getElementById('home-screen').innerHTML = `<h2>Personaggio salvato!</h2><p>In attesa che il Master avvii la sessione di gioco...</p>`;
             } else {
-                // Altrimenti compila la scheda
                 document.getElementById('creazione-personaggio-screen').style.display = 'block';
             }
         }
     }
     else if (dati.stato === 'gioco_attivo') {
-        // QUANDO SI ARRIVA QUI: Sia il Master che i giocatori entrano nella schermata di gioco (quella prima "nera")
         const giocoScreen = document.getElementById('gioco-screen');
         if (giocoScreen) {
             giocoScreen.style.display = 'block';
+            inizializzaPulsantiGioco(); // <--- Attiva i pulsanti (Enciclopedia, Abilità, Regole) ora che la schermata è visibile!
         }
     }
 }
@@ -197,10 +191,6 @@ document.getElementById('btnCreaAvventura').addEventListener('click', () => {
         });
     });
 });
-
-function controllaAccessoStanza() {
-    document.getElementById('login-giocatore-screen').style.display = 'block';
-}
 
 document.getElementById('btnEntraStanza').addEventListener('click', () => {
     mioNome = document.getElementById('inputNomeGiocatore').value;
