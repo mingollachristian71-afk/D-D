@@ -2,7 +2,6 @@
 
 import { ref, get, child } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-database.js";
 
-// Funzione di utilità per calcolare il modificatore (es. da 14 a +2)
 function calcolaModificatore(valore) {
     const num = parseInt(valore) || 10;
     const mod = Math.floor((num - 10) / 2);
@@ -43,7 +42,6 @@ export function apriSchermataEroiMaster(database, stanzaId) {
     const contenitore = document.getElementById('lista-eroi-contenitore');
     contenitore.innerHTML = '<p>Caricamento eroi in corso...</p>';
 
-    // Prende i dati aggiornati da Firebase
     get(child(ref(database), 'stanze/' + stanzaId + '/personaggi')).then((snapshot) => {
         const personaggi = snapshot.val();
         
@@ -54,12 +52,15 @@ export function apriSchermataEroiMaster(database, stanzaId) {
 
         let html = "";
         for (const [nomeEroe, dati] of Object.entries(personaggi)) {
-            // Assumiamo che la struttura dei dati contenga queste proprietà (adatta i nomi se necessario)
+            if (nomeEroe === "Master") continue;
+
             const classe = dati.classe || "Non specificata";
             const razza = dati.razza || "Non specificata";
             const descrizione = dati.descrizione || "Nessuna descrizione.";
             const obiettivo = dati.obiettivo || "Nessun obiettivo.";
-            const caratteristiche = dati.caratteristiche || {}; // es. { forza: 14, destrezza: 12, ... }
+            
+            // Pescano correttamente dall'oggetto "statistiche" salvato in script.js
+            const stats = dati.statistiche || {};
 
             html += `
                 <div style="background: #2a2a2a; border: 1px solid #444; border-radius: 8px; padding: 15px; margin-bottom: 20px;">
@@ -71,13 +72,20 @@ export function apriSchermataEroiMaster(database, stanzaId) {
                         <div style="display: flex; flex-wrap: wrap; gap: 15px;">
             `;
 
-            if (Object.keys(caratteristiche).length > 0) {
-                for (const [car, val] of Object.entries(caratteristiche)) {
+            const listaCaratteristiche = ['forza', 'destrezza', 'costituzione', 'intelligenza', 'saggezza', 'carisma'];
+            let trovate = false;
+
+            listaCaratteristiche.forEach(car => {
+                const val = stats[car];
+                if (val !== undefined && val !== "") {
+                    trovate = true;
                     const mod = calcolaModificatore(val);
-                    html += `<div style="background: #222; padding: 5px 10px; border-radius: 4px; border: 1px solid #555;"><b>${car}:</b> ${val} (${mod})</div>`;
+                    html += `<div style="background: #222; padding: 5px 10px; border-radius: 4px; border: 1px solid #555;"><b>${car.toUpperCase()}:</b> ${val} <span style="color: #ffcc00;">(${mod})</span></div>`;
                 }
-            } else {
-                html += `<span style="color: #888; font-size: 13px;">Nessuna caratteristica inserita.</span>`;
+            });
+
+            if (!trovate) {
+                html += `<span style="color: #888; font-size: 13px;">Nessuna caratteristica registrata.</span>`;
             }
 
             html += `
