@@ -6,7 +6,8 @@ import { apriSchermataAbilita } from './abilities.js';
 import { apriSchermataEnciclopedia } from './encyclopedia.js';
 import { apriSchermataBestiario } from './bestiario.js';
 import { apriSchermataAppunti, raccogliESalvaAppunti } from './appunti.js';
-
+import { apriSchermataOggettiMaster } from './oggetti-master.js';
+import { apriSchermataInventarioEroe } from './inventario-eroe.js';
 
 // Funzione per collegare i pulsanti quando la schermata di gioco è attiva
 function inizializzaPulsantiGioco() {
@@ -31,24 +32,42 @@ function inizializzaPulsantiGioco() {
             apriSchermataRegole();
         };
     }
+
     const btnBestiario = document.getElementById('btn-bestiario');
     if (btnBestiario) {
         btnBestiario.onclick = () => {
             apriSchermataBestiario();
         };
     }
+
     const btnAppunti = document.getElementById('btn-appunti');
     if (btnAppunti) {
         btnAppunti.onclick = () => {
             const isMaster = (mioNome === "Master");
-            // Leggiamo i dati attuali della stanza per popolare la textarea con il testo salvato in precedenza
-            import("https://www.gstatic.com/firebasejs/12.16.0/firebase-database.js").then(({ get, child, ref }) => {
-                get(child(ref(database), 'stanze/' + stanzaIdDaUrl)).then((snapshot) => {
-                    const datiStanza = snapshot.val() || {};
-                    apriSchermataAppunti(database, stanzaIdDaUrl, mioNome, isMaster, datiStanza);
-                });
-            });
+            apriSchermataAppunti(database, stanzaIdDaUrl, mioNome, isMaster);
         };
+    }
+
+    // --- NUOVI PULSANTI OGGETTI / INVENTARIO ---
+    const btnOggettiMaster = document.getElementById('btn-oggetti-master');
+    const btnInventarioEroe = document.getElementById('btn-inventario-eroe');
+
+    if (mioNome === "Master") {
+        if (btnOggettiMaster) {
+            btnOggettiMaster.style.display = 'inline-block'; // Visibile solo al Master
+            btnOggettiMaster.onclick = () => apriSchermataOggettiMaster();
+        }
+        if (btnInventarioEroe) {
+            btnInventarioEroe.style.display = 'none';
+        }
+    } else {
+        if (btnOggettiMaster) {
+            btnOggettiMaster.style.display = 'none';
+        }
+        if (btnInventarioEroe) {
+            btnInventarioEroe.style.display = 'inline-block'; // Visibile solo agli Eroi
+            btnInventarioEroe.onclick = () => apriSchermataInventarioEroe(mioNome);
+        }
     }
 }
 
