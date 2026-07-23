@@ -5,6 +5,8 @@ import { apriSchermataRegole } from './rules.js';
 import { apriSchermataAbilita } from './abilities.js';
 import { apriSchermataEnciclopedia } from './encyclopedia.js';
 import { apriSchermataBestiario } from './bestiario.js';
+import { apriSchermataAppunti, raccogliESalvaAppunti } from './appunti.js';
+
 
 // Funzione per collegare i pulsanti quando la schermata di gioco è attiva
 function inizializzaPulsantiGioco() {
@@ -33,6 +35,19 @@ function inizializzaPulsantiGioco() {
     if (btnBestiario) {
         btnBestiario.onclick = () => {
             apriSchermataBestiario();
+        };
+    }
+    const btnAppunti = document.getElementById('btn-appunti');
+    if (btnAppunti) {
+        btnAppunti.onclick = () => {
+            const isMaster = (mioNome === "Master");
+            // Leggiamo i dati attuali della stanza per popolare la textarea con il testo salvato in precedenza
+            import("https://www.gstatic.com/firebasejs/12.16.0/firebase-database.js").then(({ get, child, ref }) => {
+                get(child(ref(database), 'stanze/' + stanzaIdDaUrl)).then((snapshot) => {
+                    const datiStanza = snapshot.val() || {};
+                    apriSchermataAppunti(database, stanzaIdDaUrl, mioNome, isMaster, datiStanza);
+                });
+            });
         };
     }
 }
