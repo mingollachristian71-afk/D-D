@@ -42,6 +42,7 @@ export function apriSchermataEroiMaster(database, stanzaId) {
     const contenitore = document.getElementById('lista-eroi-contenitore');
     contenitore.innerHTML = '<p>Caricamento eroi in corso...</p>';
 
+    // Legge direttamente la cartella dei personaggi all'interno della stanza
     get(child(ref(database), 'stanze/' + stanzaId + '/personaggi')).then((snapshot) => {
         const personaggi = snapshot.val();
         
@@ -51,20 +52,23 @@ export function apriSchermataEroiMaster(database, stanzaId) {
         }
 
         let html = "";
-        for (const [nomeEroe, dati] of Object.entries(personaggi)) {
-            if (nomeEroe === "Master") continue;
+        for (const [nomeGiocatore, dati] of Object.entries(personaggi)) {
+            // Salta il Master se dovesse trovarsi per errore tra i personaggi
+            if (nomeGiocatore === "Master") continue;
 
+            const nomePG = dati.nomePG || "Senza Nome";
             const classe = dati.classe || "Non specificata";
             const razza = dati.razza || "Non specificata";
             const descrizione = dati.descrizione || "Nessuna descrizione.";
             const obiettivo = dati.obiettivo || "Nessun obiettivo.";
-            
-            // Pescano correttamente dall'oggetto "statistiche" salvato in script.js
             const stats = dati.statistiche || {};
 
             html += `
                 <div style="background: #2a2a2a; border: 1px solid #444; border-radius: 8px; padding: 15px; margin-bottom: 20px;">
-                    <h3 style="color: #ffcc00; margin-top: 0; border-bottom: 1px solid #444; padding-bottom: 8px;">${nomeEroe} <span style="font-size: 14px; color: #aaa; font-weight: normal;">(${razza} - ${classe})</span></h3>
+                    <h3 style="color: #ffcc00; margin-top: 0; border-bottom: 1px solid #444; padding-bottom: 8px;">
+                        ${nomePG} <span style="font-size: 16px; color: #fff; font-weight: normal;">(${nomeGiocatore})</span> 
+                        <span style="font-size: 14px; color: #aaa; font-weight: normal; float: right;">${razza} - ${classe}</span>
+                    </h3>
                     <p style="margin: 5px 0;"><b>Descrizione:</b> ${descrizione}</p>
                     <p style="margin: 5px 0;"><b>Obiettivo:</b> ${obiettivo}</p>
                     <div style="margin-top: 10px; background: #333; padding: 10px; border-radius: 5px;">
