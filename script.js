@@ -3,6 +3,7 @@ import { getDatabase, ref, set, get, onValue, update, child } from "https://www.
 import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-analytics.js";
 import { apriSchermataRegole } from './rules.js';
 import { apriSchermataAbilita } from './abilities.js';
+import { apriSchermataEnciclopedia } from './encyclopedia.js';
 
 // Esempio sul tuo pulsante abilità (assicurati di avere id="btn-abilita" nel tuo HTML)
 const btnAbilita = document.getElementById('btn-abilita');
