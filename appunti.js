@@ -1,11 +1,9 @@
-// appunti.js - Gestisce gli appunti personali (eroi e master) salvati tramite il comando globale del Master
-
-import { ref, update } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-database.js";
+// appunti.js - Gestisce gli appunti personali (sia per gli eroi che per il master)
 
 export function apriSchermataAppunti(database, stanzaId, mioNome, isMaster, datiStanza) {
     let modalAppunti = document.getElementById('modal-appunti');
     
-    // Recupera il testo salvato in precedenza dal database (se esiste)
+    // Recupera il testo salvato in precedenza dal database in base a chi sta aprendo la schermata
     let testoAttuale = "";
     if (isMaster) {
         testoAttuale = datiStanza.appuntiMaster || "";
@@ -27,13 +25,13 @@ export function apriSchermataAppunti(database, stanzaId, mioNome, isMaster, dati
 
         modalAppunti.innerHTML = `
             <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #444; padding-bottom: 10px; margin-bottom: 15px;">
-                <h2>${isMaster ? 'Appunti di Sessione (Master)' : 'Appunti Personali di ' + mioNome}</h2>
+                <h2 id="titolo-appunti">${isMaster ? 'Appunti di Sessione (Master)' : 'Appunti Personali di ' + mioNome}</h2>
                 <button id="chiudi-appunti" style="background: #d9534f; color: white; border: none; padding: 5px 10px; cursor: pointer; border-radius: 4px;">Chiudi</button>
             </div>
             
             <div style="flex: 1; display: flex; flex-direction: column;">
                 <p style="color: #aaa; font-size: 14px; margin-bottom: 5px;">
-                    Scrivi qui i tuoi promemoria, i nomi di città o indizi. Si salveranno nel database quando il Master premerà il tasto globale "Salva sessione".
+                    Scrivi qui i tuoi promemoria o indizi. Si salveranno nel database quando il Master premerà il tasto globale "Salva sessione".
                 </p>
                 <textarea id="testo-appunti-personali" placeholder="Scrivi qui i tuoi appunti..." style="width: 100%; flex: 1; padding: 15px; font-size: 16px; border-radius: 5px; border: 1px solid #555; background: #333; color: white; resize: none; box-sizing: border-box;"></textarea>
             </div>
@@ -41,18 +39,20 @@ export function apriSchermataAppunti(database, stanzaId, mioNome, isMaster, dati
 
         document.body.appendChild(modalAppunti);
 
-        // Evento per chiudere la schermata
+        // Evento per chiudere la schermata (nasconde la modale senza cancellare nulla)
         document.getElementById('chiudi-appunti').addEventListener('click', () => {
             modalAppunti.style.display = 'none';
         });
     } else {
+        // Se la modale esiste già, la aggiorniamo con il titolo corretto per chi la sta aprendo
         modalAppunti.style.display = 'flex';
-        // Aggiorna il titolo se viene riaperta
-        const h2 = modalAppunti.querySelector('h2');
-        if (h2) h2.textContent = isMaster ? 'Appunti di Sessione (Master)' : 'Appunti Personali di ' + mioNome;
+        const titolo = document.getElementById('titolo-appunti');
+        if (titolo) {
+            titolo.textContent = isMaster ? 'Appunti di Sessione (Master)' : 'Appunti Personali di ' + mioNome;
+        }
     }
 
-    // Inserisce il testo attuale nella textarea
+    // Riempie sempre la textarea con il testo corretto preso dal database o salvato finora
     const textarea = document.getElementById('testo-appunti-personali');
     if (textarea) {
         textarea.value = testoAttuale;
@@ -62,17 +62,17 @@ export function apriSchermataAppunti(database, stanzaId, mioNome, isMaster, dati
 // Funzione richiamata dal Master quando preme "Salva sessione" per raccogliere e salvare gli appunti di tutti
 export function raccogliESalvaAppunti(database, stanzaId, isMaster, mioNome) {
     const textarea = document.getElementById('testo-appunti-personali');
-    if (!textarea) return; // Se la schermata non è mai stata aperta, non fa nulla
+    if (!textarea) return Promise.resolve(); // Se la schermata non è mai stata aperta, restituisce una Promise vuota
 
     const testoInserito = textarea.value;
 
     if (isMaster) {
-        // Salva gli appunti del Master
+        // Salva gli appunti del Master nel percorso principale della stanza
         return update(ref(database, 'stanze/' + stanzaId), {
             appuntiMaster: testoInserito
         });
     } else {
-        // Salva gli appunti personali del singolo eroe nella sua sezione dei personaggi
+        // Salva gli appunti personali dell'eroe nel suo spazio all'interno dei personaggi
         return update(ref(database, 'stanze/' + stanzaId + '/personaggi/' + mioNome), {
             appuntiPersonali: testoInserito
         });
