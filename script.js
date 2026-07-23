@@ -29,6 +29,12 @@ function inizializzaPulsantiGioco() {
             apriSchermataRegole();
         };
     }
+    const btnBestiario = document.getElementById('btn-bestiario');
+    if (btnBestiario) {
+        btnBestiario.onclick = () => {
+            apriSchermataBestiario();
+        };
+    }
 }
 
 const firebaseConfig = {
