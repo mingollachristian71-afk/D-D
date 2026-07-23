@@ -8,7 +8,6 @@ import { apriSchermataBestiario } from './bestiario.js';
 import { apriSchermataAppunti, raccogliESalvaAppunti } from './appunti.js';
 import { apriSchermataOggettiMaster } from './oggetti-master.js';
 import { apriSchermataInventarioEroe } from './inventario-eroe.js';
-import { apriSchermataEroiMaster } from './eroi-master.js';
 import { apriSchermataSchedaEroe } from './scheda-eroe.js';
 
 // Funzione per collegare i pulsanti quando la schermata di gioco è attiva
@@ -81,10 +80,6 @@ function inizializzaPulsantiGioco() {
         if (btnInventarioEroe) {
             btnInventarioEroe.style.display = 'inline-block';
             btnInventarioEroe.onclick = () => apriSchermataInventarioEroe(mioNome);
-        }
-
-        if (btnEroiMaster) {
-            btnEroiMaster.style.display = 'none';
         }
         if (btnSchedaEroe) {
             btnSchedaEroe.style.display = 'inline-block';
