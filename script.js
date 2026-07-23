@@ -5,35 +5,30 @@ import { apriSchermataRegole } from './rules.js';
 import { apriSchermataAbilita } from './abilities.js';
 import { apriSchermataEnciclopedia } from './encyclopedia.js';
 
-const btnEnciclopedia = document.getElementById('btn-enciclopedia');
-if (btnEnciclopedia) {
-    btnEnciclopedia.addEventListener('click', () => {
-        apriSchermataEnciclopedia();
-    });
-}
-// Esempio sul tuo pulsante abilità (assicurati di avere id="btn-abilita" nel tuo HTML)
-const btnAbilita = document.getElementById('btn-abilita');
+// Funzione per collegare i pulsanti della schermata di gioco una volta che sono visibili
+function inizializzaPulsantiGioco() {
+    const btnEnciclopedia = document.getElementById('btn-enciclopedia');
+    if (btnEnciclopedia) {
+        // Rimuoviamo eventuali doppi listener clonando il bottone o controllando
+        btnEnciclopedia.onclick = () => {
+            apriSchermataEnciclopedia();
+        };
+    }
 
-if (btnAbilita) {
-    btnAbilita.addEventListener('click', () => {
-        const isMaster = (mioNome === "Master");
-        let classeEroe = "";
-        let razzaEroe = "";
+    const btnAbilita = document.getElementById('btn-abilita');
+    if (btnAbilita) {
+        btnAbilita.onclick = () => {
+            const isMaster = (mioNome === "Master");
+            apriSchermataAbilita(isMaster, "", "");
+        };
+    }
 
-        // Se non è il master, recuperiamo i dati del suo personaggio salvati in precedenza
-        // (supponendo che tu abbia accesso all'oggetto dei dati della stanza o del personaggio)
-        // Ad esempio leggendo dai dati salvati o da una variabile globale del personaggio.
-        
-        apriSchermataAbilita(isMaster, classeEroe, razzaEroe);
-    });
-}
-// 2. Collega il pulsante HTML (assicurati che il tuo bottone nel HTML abbia id="btn-regole")
-const btnRegole = document.getElementById('btn-regole');
-
-if (btnRegole) {
-    btnRegole.addEventListener('click', () => {
-        apriSchermataRegole();
-    });
+    const btnRegole = document.getElementById('btn-regole');
+    if (btnRegole) {
+        btnRegole.onclick = () => {
+            apriSchermataRegole();
+        };
+    }
 }
 const firebaseConfig = {
   apiKey: "AIzaSyAZq5MjHGMUJm6r_zZWvToPl76vbwVVJnU",
