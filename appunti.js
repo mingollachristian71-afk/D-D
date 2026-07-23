@@ -1,17 +1,13 @@
-// appunti.js - Gestisce gli appunti personali (sia per gli eroi che per il master)
+// appunti.js - Gestisce gli appunti personali che rimangono fissi finché il gioco è aperto
 
-export function apriSchermataAppunti(database, stanzaId, mioNome, isMaster, datiStanza) {
+import { ref, update } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-database.js";
+
+// Oggetti in memoria locale per mantenere il testo attivo durante la sessione di gioco
+let appuntiMasterLocali = "";
+let appuntiEroiLocali = {};
+
+export function apriSchermataAppunti(database, stanzaId, mioNome, isMaster) {
     let modalAppunti = document.getElementById('modal-appunti');
-    
-    // Recupera il testo salvato in precedenza dal database in base a chi sta aprendo la schermata
-    let testoAttuale = "";
-    if (isMaster) {
-        testoAttuale = datiStanza.appuntiMaster || "";
-    } else {
-        if (datiStanza.personaggi && datiStanza.personaggi[mioNome]) {
-            testoAttuale = datiStanza.personaggi[mioNome].appuntiPersonali || "";
-        }
-    }
 
     if (!modalAppunti) {
         modalAppunti = document.createElement('div');
@@ -25,56 +21,62 @@ export function apriSchermataAppunti(database, stanzaId, mioNome, isMaster, dati
 
         modalAppunti.innerHTML = `
             <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #444; padding-bottom: 10px; margin-bottom: 15px;">
-                <h2 id="titolo-appunti">${isMaster ? 'Appunti di Sessione (Master)' : 'Appunti Personali di ' + mioNome}</h2>
+                <h2 id="titolo-appunti">Appunti</h2>
                 <button id="chiudi-appunti" style="background: #d9534f; color: white; border: none; padding: 5px 10px; cursor: pointer; border-radius: 4px;">Chiudi</button>
             </div>
             
             <div style="flex: 1; display: flex; flex-direction: column;">
                 <p style="color: #aaa; font-size: 14px; margin-bottom: 5px;">
-                    Scrivi qui i tuoi promemoria o indizi. Si salveranno nel database quando il Master premerà il tasto globale "Salva sessione".
+                    Scrivi qui i tuoi promemoria. Il testo rimarrà salvato qui finché la sessione di gioco resta aperta.
                 </p>
-                <textarea id="testo-appunti-personali" placeholder="Scrivi qui i tuoi appunti..." style="width: 100%; flex: 1; padding: 15px; font-size: 16px; border-radius: 5px; border: 1px solid #555; background: #333; color: white; resize: none; box-sizing: border-box;"></textarea>
+                <textarea id="testo-appunti-personali" placeholder="Scrivi qui..." style="width: 100%; flex: 1; padding: 15px; font-size: 16px; border-radius: 5px; border: 1px solid #555; background: #333; color: white; resize: none; box-sizing: border-box;"></textarea>
             </div>
         `;
 
         document.body.appendChild(modalAppunti);
 
-        // Evento per chiudere la schermata (nasconde la modale senza cancellare nulla)
+        // Evento per chiudere la schermata (nasconde solo la finestra senza perdere nulla)
         document.getElementById('chiudi-appunti').addEventListener('click', () => {
             modalAppunti.style.display = 'none';
         });
-    } else {
-        // Se la modale esiste già, la aggiorniamo con il titolo corretto per chi la sta aprendo
-        modalAppunti.style.display = 'flex';
-        const titolo = document.getElementById('titolo-appunti');
-        if (titolo) {
-            titolo.textContent = isMaster ? 'Appunti di Sessione (Master)' : 'Appunti Personali di ' + mioNome;
-        }
+
+        // Ascolta in tempo reale quello che scrivi e lo memorizza subito nella memoria del browser
+        const textarea = document.getElementById('testo-appunti-personali');
+        textarea.addEventListener('input', (e) => {
+            const testo = e.target.value;
+            if (isMaster) {
+                appuntiMasterLocali = testo;
+            } else {
+                appuntiEroiLocali[mioNome] = testo;
+            }
+        });
     }
 
-    // Riempie sempre la textarea con il testo corretto preso dal database o salvato finora
+    // Mostra la modale
+    modalAppunti.style.display = 'flex';
+    const titolo = document.getElementById('titolo-appunti');
     const textarea = document.getElementById('testo-appunti-personali');
+    
+    if (titolo) {
+        titolo.textContent = isMaster ? 'Appunti di Sessione (Master)' : 'Appunti Personali di ' + mioNome;
+    }
+    
+    // Riempie la textarea con il testo salvato in precedenza nella sessione corrente
     if (textarea) {
-        textarea.value = testoAttuale;
+        if (isMaster) {
+            textarea.value = appuntiMasterLocali;
+        } else {
+            textarea.value = appuntiEroiLocali[mioNome] || "";
+        }
     }
 }
 
-// Funzione richiamata dal Master quando preme "Salva sessione" per raccogliere e salvare gli appunti di tutti
+// Funzione opzionale se un domani vorrai inviarli su Firebase
 export function raccogliESalvaAppunti(database, stanzaId, isMaster, mioNome) {
-    const textarea = document.getElementById('testo-appunti-personali');
-    if (!textarea) return Promise.resolve(); // Se la schermata non è mai stata aperta, restituisce una Promise vuota
-
-    const testoInserito = textarea.value;
-
     if (isMaster) {
-        // Salva gli appunti del Master nel percorso principale della stanza
-        return update(ref(database, 'stanze/' + stanzaId), {
-            appuntiMaster: testoInserito
-        });
+        return update(ref(database, 'stanze/' + stanzaId), { appuntiMaster: appuntiMasterLocali });
     } else {
-        // Salva gli appunti personali dell'eroe nel suo spazio all'interno dei personaggi
-        return update(ref(database, 'stanze/' + stanzaId + '/personaggi/' + mioNome), {
-            appuntiPersonali: testoInserito
-        });
+        const testoEroe = appuntiEroiLocali[mioNome] || "";
+        return update(ref(database, 'stanze/' + stanzaId + '/personaggi/' + mioNome), { appuntiPersonali: testoEroe });
     }
 }
