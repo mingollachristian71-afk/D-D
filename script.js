@@ -153,10 +153,11 @@ function aggiornaUIStanza(dati, stanzaId, linkStanza = "") {
         }
     }
     else if (dati.stato === 'gioco_attivo') {
+        nascondiTutteSchermate();
         const giocoScreen = document.getElementById('gioco-screen');
         if (giocoScreen) {
             giocoScreen.style.display = 'block';
-            inizializzaPulsantiGioco(); // <--- Attiva i pulsanti (Enciclopedia, Abilità, Regole) ora che la schermata è visibile!
+            inizializzaPulsantiGioco();
         }
     }
 }
