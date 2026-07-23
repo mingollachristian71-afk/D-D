@@ -27,7 +27,7 @@ export function apriSchermataAppunti(database, stanzaId, mioNome, isMaster) {
             
             <div style="flex: 1; display: flex; flex-direction: column;">
                 <p style="color: #aaa; font-size: 14px; margin-bottom: 5px;">
-                    Scrivi qui i tuoi promemoria. Il testo rimarrà salvato qui finché la sessione di gioco resta aperta.
+                    Scrivi qui i tuoi promemoria. Il testo rimarrà salvato qui finché la sessione di gioco resta aperta e si salva quando il master preme salva sessione.
                 </p>
                 <textarea id="testo-appunti-personali" placeholder="Scrivi qui..." style="width: 100%; flex: 1; padding: 15px; font-size: 16px; border-radius: 5px; border: 1px solid #555; background: #333; color: white; resize: none; box-sizing: border-box;"></textarea>
             </div>
