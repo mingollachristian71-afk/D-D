@@ -9,7 +9,7 @@ import { apriSchermataAppunti, raccogliESalvaAppunti } from './appunti.js';
 import { apriSchermataOggettiMaster } from './oggetti-master.js';
 import { apriSchermataInventarioEroe } from './inventario-eroe.js';
 import { apriSchermataSchedaEroe } from './scheda-eroe.js';
-
+import { apriMappa } from './mappa.js';
 // Funzione per collegare i pulsanti quando la schermata di gioco è attiva
 function inizializzaPulsantiGioco() {
     const btnEnciclopedia = document.getElementById('btn-enciclopedia');
@@ -49,12 +49,19 @@ function inizializzaPulsantiGioco() {
         };
     }
 
+    // --- NUOVO PULSANTE MAPPA (Accessibile a tutti) ---
+    const btnMappa = document.getElementById('btn-mappa');
+    if (btnMappa) {
+        btnMappa.onclick = () => {
+            apriMappa();
+        };
+    }
+
     // --- PULSANTI OGGETTI / INVENTARIO ---
     const btnOggettiMaster = document.getElementById('btn-oggetti-master');
     const btnInventarioEroe = document.getElementById('btn-inventario-eroe');
 
-    // --- NUOVI PULSANTI EROI / SCHEDA PERSONAGGIO ---
-    const btnEroiMaster = document.getElementById('btn-eroi-master');
+   
     const btnSchedaEroe = document.getElementById('btn-scheda-eroe');
 
     if (mioNome === "Master") {
