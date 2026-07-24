@@ -51,6 +51,7 @@ export function apriSchermataSchedaEroe(database, stanzaId, mioNome) {
             return;
         }
 
+        const nomePG = dati.nomePG || mioNome;
         const classe = dati.classe || "Non specificata";
         const razza = dati.razza || "Non specificata";
         const descrizione = dati.descrizione || "Nessuna descrizione.";
@@ -59,7 +60,10 @@ export function apriSchermataSchedaEroe(database, stanzaId, mioNome) {
 
         let html = `
             <div style="background: #2a2a2a; border: 1px solid #444; border-radius: 8px; padding: 20px;">
-                <h3 style="color: #ffcc00; margin-top: 0; border-bottom: 1px solid #444; padding-bottom: 8px;">${mioNome} <span style="font-size: 14px; color: #aaa; font-weight: normal;">(${razza} - ${classe})</span></h3>
+                <h3 style="color: #ffcc00; margin-top: 0; border-bottom: 1px solid #444; padding-bottom: 8px;">
+                    ${nomePG} <span style="font-size: 16px; color: #fff; font-weight: normal;">(${mioNome})</span> 
+                    <span style="font-size: 14px; color: #aaa; font-weight: normal; float: right;">${razza} - ${classe}</span>
+                </h3>
                 <p style="margin: 10px 0;"><b>Descrizione:</b> ${descrizione}</p>
                 <p style="margin: 10px 0;"><b>Obiettivo:</b> ${obiettivo}</p>
                 
