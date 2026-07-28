@@ -10,6 +10,8 @@ import { apriSchermataOggettiMaster } from './oggetti-master.js';
 import { apriSchermataInventarioEroe } from './inventario-eroe.js';
 import { apriSchermataSchedaEroe } from './scheda-eroe.js';
 import { apriMappa } from './mappa.js';
+import { apriSchermataDadi } from './dadi.js';
+
 // Funzione per collegare i pulsanti quando la schermata di gioco è attiva
 function inizializzaPulsantiGioco() {
     const btnEnciclopedia = document.getElementById('btn-enciclopedia');
@@ -46,6 +48,13 @@ function inizializzaPulsantiGioco() {
         btnAppunti.onclick = () => {
             const isMaster = (mioNome === "Master");
             apriSchermataAppunti(database, stanzaIdDaUrl, mioNome, isMaster);
+        };
+    }
+    // --- NUOVO PULSANTE DADI (Accessibile a tutti) ---
+    const btnDadi = document.getElementById('btn-dadi');
+    if (btnDadi) {
+        btnDadi.onclick = () => {
+            apriSchermataDadi();
         };
     }
 
