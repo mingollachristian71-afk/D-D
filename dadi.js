@@ -1,4 +1,4 @@
-// dadi.js - Gestione dadi integrata con caratteristiche da database
+// dadi.js - Gestione dadi con caratteristiche per i giocatori e solo dadi per il Master
 
 import { ref, get, child } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-database.js";
 
@@ -10,6 +10,8 @@ function calcolaModificatore(valore) {
 
 export function apriSchermataDadi(database, stanzaId, mioNome) {
     let modalDadi = document.getElementById('modal-lancio-dadi');
+
+    const isMaster = (mioNome === "Master");
 
     if (!modalDadi) {
         modalDadi = document.createElement('div');
@@ -30,13 +32,13 @@ export function apriSchermataDadi(database, stanzaId, mioNome) {
             <div style="display: flex; flex-wrap: wrap; gap: 20px; margin-top: 15px;">
                 <!-- COLONNA SINISTRA: SELEZIONE DADI -->
                 <div style="flex: 1; min-width: 280px;">
-                    <p style="font-size: 14px; color: #aaa; margin-bottom: 10px;"><b>1. Seleziona i Dadi:</b></p>
+                    <p style="font-size: 14px; color: #aaa; margin-bottom: 10px;"><b>Seleziona i Dadi:</b></p>
                     <div id="lista-selettori-dadi" style="display: flex; flex-direction: column; gap: 8px;"></div>
                 </div>
 
-                <!-- COLONNA DESTRA: MODIFICATORI CARATTERISTICHE -->
-                <div style="flex: 1; min-width: 280px; background: #1a1a1a; padding: 12px; border-radius: 6px; border: 1px solid #444;">
-                    <p style="font-size: 14px; color: #ff9900; margin-top: 0; margin-bottom: 10px;"><b>2. Seleziona Caratteristica (Opzionale):</b></p>
+                <!-- COLONNA DESTRA: MODIFICATORI CARATTERISTICHE (Visibile solo ai Giocatori) -->
+                <div id="wrapper-colonna-modificatori" style="flex: 1; min-width: 280px; background: #1a1a1a; padding: 12px; border-radius: 6px; border: 1px solid #444; ${isMaster ? 'display: none;' : ''}">
+                    <p style="font-size: 14px; color: #ff9900; margin-top: 0; margin-bottom: 10px;"><b>Seleziona Caratteristica (Opzionale):</b></p>
                     <div id="lista-modificatori-dadi" style="display: flex; flex-direction: column; gap: 8px;">
                         <p style="color: #888; font-size: 13px;">Caricamento caratteristiche...</p>
                     </div>
@@ -98,23 +100,8 @@ export function apriSchermataDadi(database, stanzaId, mioNome) {
 
     modalDadi.style.display = 'block';
 
-    // Caricamento in tempo reale dei modificatori del personaggio dal database
+    const wrapperModificatori = document.getElementById('wrapper-colonna-modificatori');
     const containerModificatori = document.getElementById('lista-modificatori-dadi');
-    containerModificatori.innerHTML = '<p style="color: #888; font-size: 13px;">Caricamento caratteristiche...</p>';
-
-    // Se è il Master, non ha una scheda PG propria, mostriamo modificatori a zero o generici
-    if (mioNome === "Master") {
-        disegnaModificatori({});
-        return;
-    }
-
-    get(child(ref(database), 'stanze/' + stanzaId + '/personaggi/' + mioNome)).then((snapshot) => {
-        const dati = snapshot.val() || {};
-        const stats = dati.statistiche || {};
-        disegnaModificatori(stats);
-    }).catch(() => {
-        disegnaModificatori({});
-    });
 
     function disegnaModificatori(stats) {
         const caratteristiche = ['forza', 'destrezza', 'costituzione', 'intelligenza', 'saggezza', 'carisma'];
@@ -140,6 +127,22 @@ export function apriSchermataDadi(database, stanzaId, mioNome) {
     function ottieniModificatoreValore(valore) {
         const num = parseInt(valore) || 10;
         return Math.floor((num - 10) / 2);
+    }
+
+    // Se è il Master, nascondiamo completamente la colonna modificatori
+    if (isMaster) {
+        if (wrapperModificatori) wrapperModificatori.style.display = 'none';
+    } else {
+        if (wrapperModificatori) wrapperModificatori.style.display = 'block';
+        containerModificatori.innerHTML = '<p style="color: #888; font-size: 13px;">Caricamento caratteristiche...</p>';
+
+        get(child(ref(database), 'stanze/' + stanzaId + '/personaggi/' + mioNome)).then((snapshot) => {
+            const dati = snapshot.val() || {};
+            const stats = dati.statistiche || {};
+            disegnaModificatori(stats);
+        }).catch(() => {
+            disegnaModificatori({});
+        });
     }
 
     // Gestione Evento click sul tasto "Tira i Dadi!"
@@ -180,21 +183,23 @@ export function apriSchermataDadi(database, stanzaId, mioNome) {
             return;
         }
 
-        // 2. Aggiunta dei modificatori spuntati
-        const checkSelezionati = modalDadi.querySelectorAll('input[name="modificatore-selezionato"]:checked');
-        if (checkSelezionati.length > 0) {
-            let sommaModificatori = 0;
-            let nomiModificatori = [];
+        // 2. Aggiunta dei modificatori spuntati (solo se non è il master)
+        if (!isMaster) {
+            const checkSelezionati = modalDadi.querySelectorAll('input[name="modificatore-selezionato"]:checked');
+            if (checkSelezionati.length > 0) {
+                let sommaModificatori = 0;
+                let nomiModificatori = [];
 
-            checkSelezionati.forEach(chk => {
-                const valMod = parseInt(chk.value);
-                const nomeMod = chk.getAttribute('data-nome');
-                sommaModificatori += valMod;
-                nomiModificatori.push(`${nomeMod} (${valMod >= 0 ? '+' + valMod : valMod})`);
-            });
+                checkSelezionati.forEach(chk => {
+                    const valMod = parseInt(chk.value);
+                    const nomeMod = chk.getAttribute('data-nome');
+                    sommaModificatori += valMod;
+                    nomiModificatori.push(`${nomeMod} (${valMod >= 0 ? '+' + valMod : valMod})`);
+                });
 
-            totaleGenerale += sommaModificatori;
-            htmlRisultati += `<div style="margin-top: 6px; color: #f0ad4e;"><b>Modificatori applicati:</b> ${nomiModificatori.join(', ')}</div>`;
+                totaleGenerale += sommaModificatori;
+                htmlRisultati += `<div style="margin-top: 6px; color: #f0ad4e;"><b>Modificatori applicati:</b> ${nomiModificatori.join(', ')}</div>`;
+            }
         }
 
         htmlRisultati += `<div style="margin-top: 10px; border-top: 1px dashed #555; padding-top: 6px; font-size: 17px; color: #5bc0de;"><b>Totale Complessivo: ${totaleGenerale}</b></div>`;
