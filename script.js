@@ -50,6 +50,7 @@ function inizializzaPulsantiGioco() {
             apriSchermataAppunti(database, stanzaIdDaUrl, mioNome, isMaster);
         };
     }
+
     // --- NUOVO PULSANTE DADI (Accessibile a tutti) ---
     const btnDadi = document.getElementById('btn-dadi');
     if (btnDadi) {
@@ -69,8 +70,6 @@ function inizializzaPulsantiGioco() {
     // --- PULSANTI OGGETTI / INVENTARIO ---
     const btnOggettiMaster = document.getElementById('btn-oggetti-master');
     const btnInventarioEroe = document.getElementById('btn-inventario-eroe');
-
-   
     const btnSchedaEroe = document.getElementById('btn-scheda-eroe');
 
     if (mioNome === "Master") {
@@ -80,11 +79,6 @@ function inizializzaPulsantiGioco() {
         }
         if (btnInventarioEroe) {
             btnInventarioEroe.style.display = 'none';
-        }
-
-        if (btnEroiMaster) {
-            btnEroiMaster.style.display = 'inline-block';
-            btnEroiMaster.onclick = () => apriSchermataEroiMaster(database, stanzaIdDaUrl);
         }
         if (btnSchedaEroe) {
             btnSchedaEroe.style.display = 'none';
