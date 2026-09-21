@@ -25,9 +25,7 @@ function inizializzaPulsantiGioco() {
     if (btnAbilita) {
         btnAbilita.onclick = () => {
             const isMaster = (mioNome === "Master");
-            apriSchermataAbilita(isMaster); // <-- Corretto
-        };
-    }
+            apriSchermataAbilita(isMaster);
         };
     }
 
