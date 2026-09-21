@@ -1,4 +1,4 @@
-// abilities.js - Gestione schermata abilità con filtri combinati sicuri
+// abilities.js - Gestione pulita e reattiva delle abilità con ricerca dinamica
 
 const databaseAbilita = [
     // --- ABILITÀ DEL BARBARO ---
@@ -42,6 +42,52 @@ export function apriSchermataAbilita(isMaster) {
         document.body.appendChild(modalAbilita);
     }
 
+    function renderizzaLista(filtroClasse = "", filtroRazza = "", filtroLivello = "") {
+        const fc = filtroClasse.toLowerCase().trim();
+        const fr = filtroRazza.toLowerCase().trim();
+        const fl = filtroLivello.trim();
+
+        const elementiFiltrati = databaseAbilita.filter(item => {
+            const tipoLower = item.tipo.toLowerCase();
+            const livelliStr = item.livello.map(l => l.toString());
+
+            let matchTesto = true;
+            if (fc !== "" && fr !== "") {
+                matchTesto = tipoLower.includes(fc) || tipoLower.includes(fr);
+            } else if (fc !== "") {
+                matchTesto = tipoLower.includes(fc);
+            } else if (fr !== "") {
+                matchTesto = tipoLower.includes(fr);
+            }
+
+            let matchLivello = true;
+            if (fl !== "") {
+                matchLivello = livelliStr.includes(fl);
+            }
+
+            return matchTesto && matchLivello;
+        });
+
+        const contenitoreRisultati = document.getElementById('risultati-ricerca-libera');
+        if (!contenitoreRisultati) return;
+
+        if (elementiFiltrati.length === 0) {
+            contenitoreRisultati.innerHTML = `<p style="color: #aaa; text-align: center; padding: 20px;">Nessuna abilità trovata con questi criteri.</p>`;
+            return;
+        }
+
+        contenitoreRisultati.innerHTML = elementiFiltrati.map(item => `
+            <div style="margin-bottom: 15px; background: #2a2a2a; padding: 12px; border-radius: 5px; border-left: 4px solid #4da6ff;">
+                <h3 style="margin: 0 0 5px 0;">
+                    ${item.nome} 
+                    <span style="font-size: 12px; color: #fff; background: #444; padding: 2px 6px; border-radius: 4px; margin-left: 5px;">${item.tipo}</span>
+                    <span style="font-size: 12px; color: #fff; background: #555; padding: 2px 6px; border-radius: 4px; margin-left: 5px;">Liv. ${item.livello.join(', ')}</span>
+                </h3>
+                <p style="margin: 0;">${item.descrizione}</p>
+            </div>
+        `).join('');
+    }
+
     modalAbilita.innerHTML = `
         <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #444; padding-bottom: 10px;">
             <h2>${isMaster ? "Database Globale Abilità" : "Cerca Abilità"}</h2>
@@ -63,18 +109,7 @@ export function apriSchermataAbilita(isMaster) {
             </div>
         </div>
 
-        <div id="risultati-ricerca-libera">
-            ${databaseAbilita.map(item => `
-                <div class="abilita-filtro-item" data-tipo="${item.tipo.toLowerCase()}" data-livelli="${item.livello.join(',')}" style="margin-bottom: 15px; background: #2a2a2a; padding: 12px; border-radius: 5px; border-left: 4px solid #4da6ff;">
-                    <h3 style="margin: 0 0 5px 0;">
-                        ${item.nome} 
-                        <span style="font-size: 12px; color: #fff; background: #444; padding: 2px 6px; border-radius: 4px; margin-left: 5px;">${item.tipo}</span>
-                        <span style="font-size: 12px; color: #fff; background: #555; padding: 2px 6px; border-radius: 4px; margin-left: 5px;">Liv. ${item.livello.join(', ')}</span>
-                    </h3>
-                    <p style="margin: 0;">${item.descrizione}</p>
-                </div>
-            `).join('')}
-        </div>
+        <div id="risultati-ricerca-libera"></div>
     `;
 
     modalAbilita.style.display = 'block';
@@ -83,42 +118,17 @@ export function apriSchermataAbilita(isMaster) {
         modalAbilita.style.display = 'none';
     };
 
+    renderizzaLista();
+
     const inputClasse = document.getElementById('ricerca-classe');
     const inputRazza = document.getElementById('ricerca-razza');
     const inputLivello = document.getElementById('ricerca-livello');
 
-    function filtra() {
-        const valClasse = inputClasse.value.toLowerCase().trim();
-        const valRazza = inputRazza.value.toLowerCase().trim();
-        const valLivello = inputLivello.value.toLowerCase().trim();
-        
-        const elementi = modalAbilita.querySelectorAll('.abilita-filtro-item');
+    const triggerFiltro = () => {
+        renderizzaLista(inputClasse.value, inputRazza.value, inputLivello.value);
+    };
 
-        elementi.forEach(item => {
-            const tipo = item.getAttribute('data-tipo');
-            const livelli = item.getAttribute('data-livelli').split(',');
-
-            // Controlli singoli
-            let okClasse = valClasse === "" || tipo.includes(valClasse);
-            let okRazza = valRazza === "" || tipo.includes(valRazza);
-            let okLivello = valLivello === "" || livelli.includes(valLivello);
-
-            // Logica combinata: se inserisci classe e/razza, deve corrispondere al testo. Se inserisci livello, DEVE corrispondere al livello esatto.
-            let matchTesto = true;
-            if (valClasse !== "" && valRazza !== "") {
-                matchTesto = tipo.includes(valClasse) || tipo.includes(valRazza);
-            } else if (valClasse !== "") {
-                matchTesto = tipo.includes(valClasse);
-            } else if (valRazza !== "") {
-                matchTesto = tipo.includes(valRazza);
-            }
-
-            let visibile = matchTesto && okLivello;
-            item.style.display = visibile ? 'block' : 'none';
-        });
-    }
-
-    inputClasse.oninput = filtra;
-    inputRazza.oninput = filtra;
-    inputLivello.oninput = filtra;
+    inputClasse.oninput = triggerFiltro;
+    inputRazza.oninput = triggerFiltro;
+    inputLivello.oninput = triggerFiltro;
 }
