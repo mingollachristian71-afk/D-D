@@ -1,4 +1,4 @@
-// abilities.js - Gestisce la schermata delle abilità con supporto per livelli multipli per abilità
+// abilities.js - Gestisce la schermata delle abilità con tre barre di ricerca separate (Classe, Razza e Livello)
 
 const databaseAbilita = [
     // --- ABILITÀ DEL BARBARO ---
@@ -42,7 +42,6 @@ export function apriSchermataAbilita(isMaster) {
         document.body.appendChild(modalAbilita);
     }
 
-    // Struttura con tre barre di ricerca: Classe, Razza e Livello
     let contenutoHTML = `
         <div style="display: flex; gap: 15px; margin-bottom: 20px;">
             <div style="flex: 1;">
@@ -85,12 +84,10 @@ export function apriSchermataAbilita(isMaster) {
 
     modalAbilita.style.display = 'block';
 
-    // Chiusura modale
     document.getElementById('chiudi-abilita').addEventListener('click', () => {
         modalAbilita.style.display = 'none';
     });
 
-    // Filtri combinati per le tre barre
     const inputClasse = document.getElementById('ricerca-classe');
     const inputRazza = document.getElementById('ricerca-razza');
     const inputLivello = document.getElementById('ricerca-livello');
@@ -103,9 +100,8 @@ export function apriSchermataAbilita(isMaster) {
 
         elementi.forEach(item => {
             const tipoItem = item.getAttribute('data-tipo');
-            const livelliItem = item.getAttribute('data-livelli').split(','); // Array di stringhe dei livelli
+            const livelliItem = item.getAttribute('data-livelli').split(',');
 
-            // Se tutte le barre sono vuote, mostra tutto
             if (testoClasse === "" && testoRazza === "" && testoLivello === "") {
                 item.style.display = 'block';
                 return;
@@ -114,7 +110,6 @@ export function apriSchermataAbilita(isMaster) {
             let mostra = false;
             if (testoClasse !== "" && tipoItem.includes(testoClasse)) mostra = true;
             if (testoRazza !== "" && tipoItem.includes(testoRazza)) mostra = true;
-            // Controlla se il livello cercato è presente tra i livelli dell'abilità
             if (testoLivello !== "" && livelliItem.includes(testoLivello)) mostra = true;
 
             item.style.display = mostra ? 'block' : 'none';
