@@ -1,4 +1,4 @@
-// abilities.js - Gestisce la schermata delle abilità con filtri combinati (Classe/Razza E Livello)
+// abilities.js - Gestione schermata abilità con filtri combinati sicuri
 
 const databaseAbilita = [
     // --- ABILITÀ DEL BARBARO ---
@@ -42,8 +42,13 @@ export function apriSchermataAbilita(isMaster) {
         document.body.appendChild(modalAbilita);
     }
 
-    let contenutoHTML = `
-        <div style="display: flex; gap: 15px; margin-bottom: 20px;">
+    modalAbilita.innerHTML = `
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #444; padding-bottom: 10px;">
+            <h2>${isMaster ? "Database Globale Abilità" : "Cerca Abilità"}</h2>
+            <button id="chiudi-abilita" style="background: #d9534f; color: white; border: none; padding: 5px 10px; cursor: pointer; border-radius: 4px;">Chiudi</button>
+        </div>
+        
+        <div style="display: flex; gap: 15px; margin: 20px 0;">
             <div style="flex: 1;">
                 <label style="display: block; margin-bottom: 5px; color: #4da6ff; font-weight: bold;">Cerca Classe:</label>
                 <input type="text" id="ricerca-classe" placeholder="Es. Barbaro..." style="width: 100%; padding: 8px; font-size: 14px; border-radius: 5px; border: 1px solid #555; background: #333; color: white;">
@@ -54,7 +59,7 @@ export function apriSchermataAbilita(isMaster) {
             </div>
             <div style="flex: 1;">
                 <label style="display: block; margin-bottom: 5px; color: #4da6ff; font-weight: bold;">Cerca Livello:</label>
-                <input type="text" id="ricerca-livello" placeholder="Es. 1, 4, 9..." style="width: 100%; padding: 8px; font-size: 14px; border-radius: 5px; border: 1px solid #555; background: #333; color: white;">
+                <input type="text" id="ricerca-livello" placeholder="Es. 1..." style="width: 100%; padding: 8px; font-size: 14px; border-radius: 5px; border: 1px solid #555; background: #333; color: white;">
             </div>
         </div>
 
@@ -72,67 +77,48 @@ export function apriSchermataAbilita(isMaster) {
         </div>
     `;
 
-    modalAbilita.innerHTML = `
-        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #444; padding-bottom: 10px;">
-            <h2>${isMaster ? "Database Globale Abilità (Filtri Classe/Razza/Livello)" : "Cerca Abilità"}</h2>
-            <button id="chiudi-abilita" style="background: #d9534f; color: white; border: none; padding: 5px 10px; cursor: pointer; border-radius: 4px;">Chiudi</button>
-        </div>
-        <div style="margin-top: 15px;">
-            ${contenutoHTML}
-        </div>
-    `;
-
     modalAbilita.style.display = 'block';
 
-    document.getElementById('chiudi-abilita').addEventListener('click', () => {
+    document.getElementById('chiudi-abilita').onclick = () => {
         modalAbilita.style.display = 'none';
-    });
+    };
 
     const inputClasse = document.getElementById('ricerca-classe');
     const inputRazza = document.getElementById('ricerca-razza');
     const inputLivello = document.getElementById('ricerca-livello');
 
-    function aggiornaFiltriAbilita() {
-        const testoClasse = inputClasse.value.toLowerCase().trim();
-        const testoRazza = inputRazza.value.toLowerCase().trim();
-        const testoLivello = inputLivello.value.toLowerCase().trim();
-        const elementi = document.querySelectorAll('.abilita-filtro-item');
+    function filtra() {
+        const valClasse = inputClasse.value.toLowerCase().trim();
+        const valRazza = inputRazza.value.toLowerCase().trim();
+        const valLivello = inputLivello.value.toLowerCase().trim();
+        
+        const elementi = modalAbilita.querySelectorAll('.abilita-filtro-item');
 
         elementi.forEach(item => {
-            const tipoItem = item.getAttribute('data-tipo');
-            const livelliItem = item.getAttribute('data-livelli').split(',');
+            const tipo = item.getAttribute('data-tipo');
+            const livelli = item.getAttribute('data-livelli').split(',');
 
-            // Se tutto è vuoto, mostra tutto
-            if (testoClasse === "" && testoRazza === "" && testoLivello === "") {
-                item.style.display = 'block';
-                return;
+            // Controlli singoli
+            let okClasse = valClasse === "" || tipo.includes(valClasse);
+            let okRazza = valRazza === "" || tipo.includes(valRazza);
+            let okLivello = valLivello === "" || livelli.includes(valLivello);
+
+            // Logica combinata: se inserisci classe e/razza, deve corrispondere al testo. Se inserisci livello, DEVE corrispondere al livello esatto.
+            let matchTesto = true;
+            if (valClasse !== "" && valRazza !== "") {
+                matchTesto = tipo.includes(valClasse) || tipo.includes(valRazza);
+            } else if (valClasse !== "") {
+                matchTesto = tipo.includes(valClasse);
+            } else if (valRazza !== "") {
+                matchTesto = tipo.includes(valRazza);
             }
 
-            // Verifica singole condizioni
-            let matchClasse = testoClasse === "" || tipoItem.includes(testoClasse);
-            let matchRazza = testoRazza === "" || tipoItem.includes(testoRazza);
-            let matchLivello = testoLivello === "" || livelliItem.includes(testoLivello);
-
-            // Gestisce il caso in cui l'utente compila sia classe che razza (deve corrispondere ad almeno una delle due)
-            let matchGruppoTesto = true;
-            if (testoClasse !== "" && testoRazza !== "") {
-                matchGruppoTesto = tipoItem.includes(testoClasse) || tipoItem.includes(testoRazza);
-            } else if (testoClasse !== "") {
-                matchGruppoTesto = tipoItem.includes(testoClasse);
-            } else if (testoRazza !== "") {
-                matchGruppoTesto = tipoItem.includes(testoRazza);
-            }
-
-            // Il filtro finale richiede che il testo corrisponda E che il livello corrisponda (se inserito)
-            let mostra = matchGruppoTesto && matchLivello;
-
-            item.style.display = mostra ? 'block' : 'none';
+            let visibile = matchTesto && okLivello;
+            item.style.display = visibile ? 'block' : 'none';
         });
     }
 
-    if (inputClasse && inputRazza && inputLivello) {
-        inputClasse.addEventListener('input', aggiornaFiltriAbilita);
-        inputRazza.addEventListener('input', aggiornaFiltriAbilita);
-        inputLivello.addEventListener('input', aggiornaFiltriAbilita);
-    }
+    inputClasse.oninput = filtra;
+    inputRazza.oninput = filtra;
+    inputLivello.oninput = filtra;
 }
