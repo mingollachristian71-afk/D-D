@@ -1,4 +1,4 @@
-// abilities.js - Gestisce la schermata delle abilità con tre barre di ricerca separate (Classe, Razza e Livello)
+// abilities.js - Gestisce la schermata delle abilità con filtri combinati (Classe/Razza E Livello)
 
 const databaseAbilita = [
     // --- ABILITÀ DEL BARBARO ---
@@ -54,7 +54,7 @@ export function apriSchermataAbilita(isMaster) {
             </div>
             <div style="flex: 1;">
                 <label style="display: block; margin-bottom: 5px; color: #4da6ff; font-weight: bold;">Cerca Livello:</label>
-                <input type="text" id="ricerca-livello" placeholder="Es. 4, 8, 9..." style="width: 100%; padding: 8px; font-size: 14px; border-radius: 5px; border: 1px solid #555; background: #333; color: white;">
+                <input type="text" id="ricerca-livello" placeholder="Es. 1, 4, 9..." style="width: 100%; padding: 8px; font-size: 14px; border-radius: 5px; border: 1px solid #555; background: #333; color: white;">
             </div>
         </div>
 
@@ -102,15 +102,29 @@ export function apriSchermataAbilita(isMaster) {
             const tipoItem = item.getAttribute('data-tipo');
             const livelliItem = item.getAttribute('data-livelli').split(',');
 
+            // Se tutto è vuoto, mostra tutto
             if (testoClasse === "" && testoRazza === "" && testoLivello === "") {
                 item.style.display = 'block';
                 return;
             }
 
-            let mostra = false;
-            if (testoClasse !== "" && tipoItem.includes(testoClasse)) mostra = true;
-            if (testoRazza !== "" && tipoItem.includes(testoRazza)) mostra = true;
-            if (testoLivello !== "" && livelliItem.includes(testoLivello)) mostra = true;
+            // Verifica singole condizioni
+            let matchClasse = testoClasse === "" || tipoItem.includes(testoClasse);
+            let matchRazza = testoRazza === "" || tipoItem.includes(testoRazza);
+            let matchLivello = testoLivello === "" || livelliItem.includes(testoLivello);
+
+            // Gestisce il caso in cui l'utente compila sia classe che razza (deve corrispondere ad almeno una delle due)
+            let matchGruppoTesto = true;
+            if (testoClasse !== "" && testoRazza !== "") {
+                matchGruppoTesto = tipoItem.includes(testoClasse) || tipoItem.includes(testoRazza);
+            } else if (testoClasse !== "") {
+                matchGruppoTesto = tipoItem.includes(testoClasse);
+            } else if (testoRazza !== "") {
+                matchGruppoTesto = tipoItem.includes(testoRazza);
+            }
+
+            // Il filtro finale richiede che il testo corrisponda E che il livello corrisponda (se inserito)
+            let mostra = matchGruppoTesto && matchLivello;
 
             item.style.display = mostra ? 'block' : 'none';
         });
