@@ -1,4 +1,4 @@
-// abilities.js - Gestione pulita e reattiva delle abilità con ricerca dinamica
+// abilities.js - Gestione abilità con livello affiancato a classe e razza
 
 const databaseAbilita = [
     // --- ABILITÀ DEL BARBARO ---
@@ -42,14 +42,12 @@ export function apriSchermataAbilita(isMaster) {
         document.body.appendChild(modalAbilita);
     }
 
-    function renderizzaLista(filtroClasse = "", filtroRazza = "", filtroLivello = "") {
+    function renderizzaLista(filtroClasse = "", filtroRazza = "") {
         const fc = filtroClasse.toLowerCase().trim();
         const fr = filtroRazza.toLowerCase().trim();
-        const fl = filtroLivello.trim();
 
         const elementiFiltrati = databaseAbilita.filter(item => {
             const tipoLower = item.tipo.toLowerCase();
-            const livelliStr = item.livello.map(l => l.toString());
 
             let matchTesto = true;
             if (fc !== "" && fr !== "") {
@@ -60,12 +58,7 @@ export function apriSchermataAbilita(isMaster) {
                 matchTesto = tipoLower.includes(fr);
             }
 
-            let matchLivello = true;
-            if (fl !== "") {
-                matchLivello = livelliStr.includes(fl);
-            }
-
-            return matchTesto && matchLivello;
+            return matchTesto;
         });
 
         const contenitoreRisultati = document.getElementById('risultati-ricerca-libera');
@@ -80,8 +73,7 @@ export function apriSchermataAbilita(isMaster) {
             <div style="margin-bottom: 15px; background: #2a2a2a; padding: 12px; border-radius: 5px; border-left: 4px solid #4da6ff;">
                 <h3 style="margin: 0 0 5px 0;">
                     ${item.nome} 
-                    <span style="font-size: 12px; color: #fff; background: #444; padding: 2px 6px; border-radius: 4px; margin-left: 5px;">${item.tipo}</span>
-                    <span style="font-size: 12px; color: #fff; background: #555; padding: 2px 6px; border-radius: 4px; margin-left: 5px;">Liv. ${item.livello.join(', ')}</span>
+                    <span style="font-size: 12px; color: #fff; background: #444; padding: 2px 6px; border-radius: 4px; margin-left: 5px;">${item.tipo} (Liv. ${item.livello.join(', ')})</span>
                 </h3>
                 <p style="margin: 0;">${item.descrizione}</p>
             </div>
@@ -101,11 +93,7 @@ export function apriSchermataAbilita(isMaster) {
             </div>
             <div style="flex: 1;">
                 <label style="display: block; margin-bottom: 5px; color: #4da6ff; font-weight: bold;">Cerca Razza:</label>
-                <input type="text" id="ricerca-razza" placeholder="Es. Dragonide Bianco..." style="width: 100%; padding: 8px; font-size: 14px; border-radius: 5px; border: 1px solid #555; background: #333; color: white;">
-            </div>
-            <div style="flex: 1;">
-                <label style="display: block; margin-bottom: 5px; color: #4da6ff; font-weight: bold;">Cerca Livello:</label>
-                <input type="text" id="ricerca-livello" placeholder="Es. 1..." style="width: 100%; padding: 8px; font-size: 14px; border-radius: 5px; border: 1px solid #555; background: #333; color: white;">
+                <input type="text" id="ricerca-razza" placeholder="Es. Elfo, Nano..." style="width: 100%; padding: 8px; font-size: 14px; border-radius: 5px; border: 1px solid #555; background: #333; color: white;">
             </div>
         </div>
 
@@ -122,13 +110,11 @@ export function apriSchermataAbilita(isMaster) {
 
     const inputClasse = document.getElementById('ricerca-classe');
     const inputRazza = document.getElementById('ricerca-razza');
-    const inputLivello = document.getElementById('ricerca-livello');
 
     const triggerFiltro = () => {
-        renderizzaLista(inputClasse.value, inputRazza.value, inputLivello.value);
+        renderizzaLista(inputClasse.value, inputRazza.value);
     };
 
     inputClasse.oninput = triggerFiltro;
     inputRazza.oninput = triggerFiltro;
-    inputLivello.oninput = triggerFiltro;
 }
