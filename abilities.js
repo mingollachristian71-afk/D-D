@@ -1,4 +1,4 @@
-// abilities.js - Gestione abilità con livello affiancato a classe e razza
+// abilities.js - Gestione abilità senza filtro livello, con etichetta livello visibile
 
 const databaseAbilita = [
     // --- ABILITÀ DEL BARBARO ---
@@ -73,7 +73,8 @@ export function apriSchermataAbilita(isMaster) {
             <div style="margin-bottom: 15px; background: #2a2a2a; padding: 12px; border-radius: 5px; border-left: 4px solid #4da6ff;">
                 <h3 style="margin: 0 0 5px 0;">
                     ${item.nome} 
-                    <span style="font-size: 12px; color: #fff; background: #444; padding: 2px 6px; border-radius: 4px; margin-left: 5px;">${item.tipo} (Liv. ${item.livello.join(', ')})</span>
+                    <span style="font-size: 12px; color: #fff; background: #444; padding: 2px 6px; border-radius: 4px; margin-left: 5px;">${item.tipo}</span>
+                    <span style="font-size: 12px; color: #fff; background: #555; padding: 2px 6px; border-radius: 4px; margin-left: 5px;">Liv. ${item.livello.join(', ')}</span>
                 </h3>
                 <p style="margin: 0;">${item.descrizione}</p>
             </div>
@@ -93,7 +94,7 @@ export function apriSchermataAbilita(isMaster) {
             </div>
             <div style="flex: 1;">
                 <label style="display: block; margin-bottom: 5px; color: #4da6ff; font-weight: bold;">Cerca Razza:</label>
-                <input type="text" id="ricerca-razza" placeholder="Es. Elfo, Nano..." style="width: 100%; padding: 8px; font-size: 14px; border-radius: 5px; border: 1px solid #555; background: #333; color: white;">
+                <input type="text" id="ricerca-razza" placeholder="Es. Dragonide Bianco..." style="width: 100%; padding: 8px; font-size: 14px; border-radius: 5px; border: 1px solid #555; background: #333; color: white;">
             </div>
         </div>
 
