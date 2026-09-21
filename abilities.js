@@ -1,4 +1,4 @@
-// abilities.js - Gestione abilità senza filtro livello, con etichetta livello visibile
+// abilities.js - Gestione abilità pulito senza campo di ricerca livello
 
 const databaseAbilita = [
     // --- ABILITÀ DEL BARBARO ---
@@ -81,6 +81,7 @@ export function apriSchermataAbilita(isMaster) {
         `).join('');
     }
 
+    // Qui il blocco HTML del modale ha SOLO Cerca Classe e Cerca Razza (il livello è sparito)
     modalAbilita.innerHTML = `
         <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #444; padding-bottom: 10px;">
             <h2>${isMaster ? "Database Globale Abilità" : "Cerca Abilità"}</h2>
